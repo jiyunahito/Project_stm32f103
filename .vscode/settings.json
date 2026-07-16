@@ -1,0 +1,15 @@
+{
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.default.compilerPath": "C:/FreeRTOS/stm32f103/stm32f103project/gnu/bin/arm-none-eabi-gcc.exe",
+    "C_Cpp.default.intelliSenseMode": "windows-gcc-arm",
+
+    "cmake.generator": "Ninja",
+    "cmake.makeProgramPath": "C:/FreeRTOS/stm32f103/stm32f103project/gnu/bin/ninja.exe",
+
+    "cmake.configureSettings": {
+        "CMAKE_MAKE_PROGRAM": "C:/FreeRTOS/stm32f103/stm32f103project/gnu/bin/ninja.exe",
+        "OPENOCD_EXECUTABLE": "C:/FreeRTOS/stm32f103/stm32f103project/gnu/OpenOCD-20260121-0.12.0/bin/openocd.exe"
+    },
+    // "stm32-for-vscode.openOCDPath": false,
+    // "stm32-for-vscode.makePath": false
+}
