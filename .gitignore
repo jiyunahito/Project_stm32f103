@@ -5,6 +5,9 @@
 .vscode/ipch/
 .vscode/browse.VC.db
 .vscode/config_default_schema.json
+.vscode/launch.json
+.vscode/settings.json
+.vscode/c_cpp_properties.json
 # 注意：我們「不」忽略 settings.json, launch.json, tasks.json，
 # 這樣你換電腦時，這些珍貴的 Debug 設定才能直接從 GitHub 拉下來用！
 
