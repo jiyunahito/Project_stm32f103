@@ -1,16 +1,84 @@
+// {
+//     "version": "2.0.0",
+//     "tasks": [
+//         {
+//             "type": "cmake",
+//             "label": "CMake: build",
+//             "command": "build",
+//             "targets": [
+//                 "all"
+//             ],
+//             "group": "build",
+//             "problemMatcher": [],
+//             "detail": "CMake template build task"
+//         },
+//         {
+//             "label": "flash",
+//             "type": "shell",
+//             "command": "openocd",
+//             "args": [
+//                 "-f", "interface/cmsis-dap.cfg",
+//                 "-f", "target/stm32f1x.cfg",
+//                 "-c", "program build/${workspaceFolderBasename}.elf verify reset exit"
+//             ],
+//             "problemMatcher": []
+//         }
+//     ]
+// }
 {
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "cmake",
-            "label": "CMake: build",
-            "command": "build",
-            "targets": [
-                "all"
+            "label": "CMake: Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build/Debug"
             ],
-            "group": "build",
-            "problemMatcher": [],
-            "detail": "CMake template build task"
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "CMake: Clean",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build/Debug",
+                "--target",
+                "clean"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "STM32: Flash (OpenOCD)",
+            "type": "shell",
+            "command": "openocd",
+            "args": [
+                "-f", "interface/cmsis-dap.cfg",                
+                "-f", "target/stm32f1x.cfg",
+                "-c", "program build/Debug/stm32f103project.elf verify reset exit"
+            ],
+            "dependsOn": "CMake: Build",
+            "group": "none",
+            "problemMatcher": []
+        },
+        {
+            "label": "STM32: Flash for Debug (OpenOCD)",
+            "type": "shell",
+            "command": "openocd",
+            "args": [
+                "-f", "interface/cmsis-dap.cfg",
+                "-f", "target/stm32f1x.cfg",
+                "-c", "program ${workspaceFolder}/build/Debug/stm32f103project.elf verify reset"
+            ],
+            "dependsOn": "CMake: Build",
+            "group": "none",
+            "problemMatcher": []
         }
     ]
 }

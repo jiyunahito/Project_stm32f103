@@ -85,14 +85,14 @@ int main(void)
   LL_GPIO_AF_Remap_SWJ_NOJTAG();
 
   /* USER CODE BEGIN Init */
-  static volatile uint32_t u32LED0_Tick = 0;
+  static uint32_t u32LED0_Tick = 0; // LED0 Tick
   /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  LL_SYSTICK_EnableIT();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -104,11 +104,12 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-  {        
+  {
     if(u32GetTick() - u32LED0_Tick >= 500){
       u32LED0_Tick = u32GetTick();
-      LL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
+      LL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin); 
     }
+          
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
