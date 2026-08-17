@@ -109,7 +109,6 @@ int main(void)
       u32LED0_Tick = u32GetTick();
       LL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin); 
     }
-          
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
