@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "led.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,13 +42,16 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
 static volatile uint32_t u32Tick = 0; // System Tick
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
+
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 /* USER CODE BEGIN PFP */
+
 uint32_t u32GetTick(void);
 /* USER CODE END PFP */
 
@@ -85,14 +88,15 @@ int main(void)
   LL_GPIO_AF_Remap_SWJ_NOJTAG();
 
   /* USER CODE BEGIN Init */
-  static volatile uint32_t u32LED0_Tick = 0;
+  
+  static uint32_t u32LED0_Tick = 0; // 紀錄上一次LED0動作的時間
   /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  LL_SYSTICK_EnableIT();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -105,9 +109,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {        
-    if(u32GetTick() - u32LED0_Tick >= 500){
+    if(u32GetTick() - u32LED0_Tick >= LED_EXECUTE_INTERVAL){
       u32LED0_Tick = u32GetTick();
-      LL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
+      vledLed_Toggle();
     }
     /* USER CODE END WHILE */
 
@@ -180,6 +184,12 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+/**
+  * @brief Get System Tick
+  * @param None
+  * @retval None
+  */
 uint32_t u32GetTick(void){
   return u32Tick;
 }
