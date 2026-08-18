@@ -88,8 +88,12 @@ int main(void)
   LL_GPIO_AF_Remap_SWJ_NOJTAG();
 
   /* USER CODE BEGIN Init */
+<<<<<<< HEAD
   
   static uint32_t u32LED0_Tick = 0; // 紀錄上一次LED0動作的時間
+=======
+  static uint32_t u32LED0_Tick = 0; // LED0 Tick
+>>>>>>> 9ab4d8dd54f20145ad7ff6393f22484ee8b55b53
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -108,10 +112,17 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
+<<<<<<< HEAD
   {        
     if(u32GetTick() - u32LED0_Tick >= LED_EXECUTE_INTERVAL){
       u32LED0_Tick = u32GetTick();
       vledLed_Toggle();
+=======
+  {
+    if(u32GetTick() - u32LED0_Tick >= 500){
+      u32LED0_Tick = u32GetTick();
+      LL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin); 
+>>>>>>> 9ab4d8dd54f20145ad7ff6393f22484ee8b55b53
     }
     /* USER CODE END WHILE */
 
