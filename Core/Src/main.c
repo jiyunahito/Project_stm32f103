@@ -47,7 +47,6 @@ static volatile uint32_t u32Tick = 0; // System Tick
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
-
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 /* USER CODE BEGIN PFP */
@@ -165,11 +164,28 @@ static void MX_GPIO_Init(void)
   /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOE);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOA);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
 
   /**/
+  LL_GPIO_ResetOutputPin(LED1_GPIO_Port, LED1_Pin);
+
+  /**/
   LL_GPIO_ResetOutputPin(LED0_GPIO_Port, LED0_Pin);
+
+  /**/
+  GPIO_InitStruct.Pin = KEY2_Pin|KEY1_Pin|KEY0_Pin;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /**/
+  GPIO_InitStruct.Pin = LED1_Pin;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  LL_GPIO_Init(LED1_GPIO_Port, &GPIO_InitStruct);
 
   /**/
   GPIO_InitStruct.Pin = LED0_Pin;
