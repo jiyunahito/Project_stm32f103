@@ -66,6 +66,7 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 void vIncTick(void);
+uint32_t u32GetTick(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

@@ -9,7 +9,7 @@ typedef enum{
     KEY_EVENT_NONE = 0,
     KEY_EVENT_PRESS,
     KEY_EVENT_RELEASE,
-    KET_EVENT_LONG_PRESS    
+    KEY_EVENT_LONG_PRESS    
 } ekeyKeyEvent;
 
 void vkeyKey_Init(void);
