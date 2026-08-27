@@ -90,6 +90,9 @@ int main(void)
   /* USER CODE BEGIN Init */
   
   static uint32_t u32LED0_Tick = 0; // 紀錄上一次LED0動作的時間
+  static tkeyKey tKey0;
+  static tkeyKey tKey1;
+  static tkeyKey tKey2;
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -102,7 +105,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-  vkeyKey_Init();
+  vkeyKey_Init(KEY0_GPIO_Port, KEY0_Pin, ACTIVE_LOW, &tKey0);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -116,9 +119,9 @@ int main(void)
     static bool long_press_mode = false;
     static uint32_t last_blink_tick = 0;
 
-    vkeyKey_Tick();
-    ekeyKeyEvent event = ekeyKey_GetEvent();
-
+    vkeyKey_Tick(&tKey0);
+    ekeyKeyEvent event = ekeyKey_GetEvent(&tKey0);
+  
     switch (event)
     {
     case KEY_EVENT_PRESS:
@@ -127,7 +130,7 @@ int main(void)
     case KEY_EVENT_LONG_PRESS:
       break;
     case KEY_EVENT_RELEASE:
-      break;
+      break;  
     default:
       break;
     }
