@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "led.h"
 #include "key.h"
+#include "usart.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -108,6 +109,8 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   vkeyKey_Init(KEY0_GPIO_Port, KEY0_Pin, ACTIVE_LOW, &tKey0);
+  vusartUSART_Init();
+  vusartUSART_Print("============");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -128,6 +131,7 @@ int main(void)
     {
     case KEY_EVENT_PRESS:
       vledLed_Toggle();
+      // vusartUSART_Print("for test");
       break;
     case KEY_EVENT_LONG_PRESS:
       break;

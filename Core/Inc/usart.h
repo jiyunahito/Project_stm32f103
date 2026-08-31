@@ -4,6 +4,16 @@
 #include "main.h"
 #include <stdint.h>
 
+#define UART_BUF_SIZE 128
+
+typedef struct
+{
+    uint8_t tx_buffer[UART_BUF_SIZE];
+    volatile uint8_t is_tx_busy;
+    uint16_t tx_size;
+    volatile uint16_t tx_index;
+} tusartTXBuffer;
+
 typedef enum{
     USART_CMD_NONE = 0,
     USART_CMD_LED_ON,

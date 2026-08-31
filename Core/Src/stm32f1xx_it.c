@@ -22,6 +22,8 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
+#include "usart.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,7 +59,7 @@
 /* External variables --------------------------------------------------------*/
 
 /* USER CODE BEGIN EV */
-
+extern tusartTXBuffer tusartTX1;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -204,6 +206,29 @@ void SysTick_Handler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
+  
+  /* 接收中斷(RXNE) */
+  if( LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1)){
+
+  }
+
+  /* 發送中斷(TXE) */
+  if(LL_USART_IsActiveFlag_TXE(USART1) && LL_USART_IsEnabledIT_TXE(USART1)){
+    if(tusartTX1.tx_index < tusartTX1.tx_size){
+      LL_USART_TransmitData8(USART1, tusartTX1.tx_buffer[tusartTX1.tx_index++]);
+    }
+    else{
+      LL_USART_DisableIT_TXE(USART1);
+      LL_USART_EnableIT_TC(USART1);
+    }
+  }
+
+  /* 發送完成(TC) */
+  if(LL_USART_IsActiveFlag_TC(USART1) && LL_USART_IsEnabledIT_TC(USART1)){
+    LL_USART_DisableIT_TC(USART1);
+    LL_USART_ClearFlag_TC(USART1);
+    tusartTX1.is_tx_busy = 0;
+  }
 
   /* USER CODE END USART1_IRQn 0 */
   /* USER CODE BEGIN USART1_IRQn 1 */

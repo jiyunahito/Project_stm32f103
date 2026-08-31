@@ -35,7 +35,7 @@ enable_language(C ASM)
 add_executable(${CMAKE_PROJECT_NAME}
     Core/Inc/led.h
     Core/Inc/key.h
-    # Core/Inc/usart.h
+    Core/Inc/usart.h
 )
 
 # Add STM32CubeMX generated sources
@@ -51,7 +51,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
     Core/Src/led.c
     Core/Src/key.c
-    # Core/Src/usart.c
+    Core/Src/usart.c
 )
 
 # Add include paths
