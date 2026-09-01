@@ -2,12 +2,16 @@
 #include <stdio.h>
 #include <string.h>
 
-static tusartTXBuffer tusartTX1;
+tusartTXBuffer tusartTX1;
+tusartRXBuffer tusartRX1;
 
 void vusartUSART_Init(void){
     tusartTX1.tx_size = 0;
     tusartTX1.tx_index = 0;
     tusartTX1.is_tx_busy = 0;
+    tusartRX1.head = 0;
+    tusartRX1.tail = 0;
+    tusartRX1.frame_ready_flag = FRAME_NOT_READY;
 }
 
 void vusartUSART_Print(const char *text){    
@@ -37,18 +41,18 @@ void vusartUSART_StartRX(void){
     
 }
 
-eusartUSART_Cmd eusartUSART_Poll(void){
+// eusartUSART_Cmd eusartUSART_Poll(void){
 
-}
+// }
 
-int _write(int file, char *ptr, int len){ // 不是走usart中斷 不需要enableIT_TXE
-    for(int i = 0; i < len; i++){
-        if(ptr[i] == '\n'){
-            while(!LL_USART_IsActiveFlag_TXE(USART1));
-            LL_USART_TransmitData8(USART1, '\r');
-        }
-    }
+// int _write(int file, char *ptr, int len){ // 不是走usart中斷 不需要enableIT_TXE
+//     for(int i = 0; i < len; i++){
+//         if(ptr[i] == '\n'){
+//             while(!LL_USART_IsActiveFlag_TXE(USART1));
+//             LL_USART_TransmitData8(USART1, '\r');
+//         }
+//     }
     
-    while(!LL_USART_IsActiveFlag_TXE(USART1));
-    LL_USART_TransmitData8(USART1, '\n');
-}
+//     while(!LL_USART_IsActiveFlag_TXE(USART1));
+//     LL_USART_TransmitData8(USART1, '\n');
+// }

@@ -60,6 +60,7 @@
 
 /* USER CODE BEGIN EV */
 extern tusartTXBuffer tusartTX1;
+extern tusartRXBuffer tusartRX1;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -209,7 +210,22 @@ void USART1_IRQHandler(void)
   
   /* 接收中斷(RXNE) */
   if( LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1)){
+    uint8_t data = LL_USART_ReceiveData8(USART1);
+    uint16_t next_head = (tusartRX1.head + 1) & (UART_BUF_SIZE - 1);
 
+    if(next_head != tusartRX1.tail){
+      tusartRX1.rx_buffer[tusartRX1.head] = data;
+      tusartRX1.head = next_head;
+    }
+    else{
+
+    }
+  }
+
+  /* 空閒(IDLE) */
+  if( LL_USART_IsActiveFlag_IDLE(USART1) && LL_USART_IsEnabledIT_IDLE(USART1)){
+    LL_USART_ClearFlag_IDLE(USART1);
+    tusartRX1.frame_ready_flag = FRAME_READY;    
   }
 
   /* 發送中斷(TXE) */

@@ -4,15 +4,23 @@
 #include "main.h"
 #include <stdint.h>
 
-#define UART_BUF_SIZE 128
+#define UART_BUF_SIZE 128U
+#define FRAME_READY 1
+#define FRAME_NOT_READY 0
 
-typedef struct
-{
+typedef struct{
     uint8_t tx_buffer[UART_BUF_SIZE];
     volatile uint8_t is_tx_busy;
     uint16_t tx_size;
     volatile uint16_t tx_index;
 } tusartTXBuffer;
+
+typedef struct{
+    uint8_t rx_buffer[UART_BUF_SIZE];
+    volatile uint8_t frame_ready_flag;
+    volatile uint16_t head;
+    volatile uint16_t tail;
+} tusartRXBuffer;
 
 typedef enum{
     USART_CMD_NONE = 0,
