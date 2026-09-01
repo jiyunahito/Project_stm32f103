@@ -91,10 +91,7 @@ int main(void)
 
   /* USER CODE BEGIN Init */
   
-  static uint32_t u32LED0_Tick = 0; // 紀錄上一次LED0動作的時間
-  static tkeyKey tKey0;
-  static tkeyKey tKey1;
-  static tkeyKey tKey2;
+  static uint32_t u32LED0_Tick = 0; // 紀錄上一次LED0動作的時間  
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -109,8 +106,8 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   vkeyKey_Init(KEY0_GPIO_Port, KEY0_Pin, ACTIVE_LOW, &tKey0);
-  vusartUSART_Init();
-  vusartUSART_Print("============");
+  // vusartUSART_Init();
+  // vusartUSART_Print("============");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -120,10 +117,7 @@ int main(void)
     // if(u32GetTick() - u32LED0_Tick >= LED_EXECUTE_INTERVAL){
     //   u32LED0_Tick = u32GetTick();
     //   vledLed_Toggle();
-    // }
-    static bool long_press_mode = false;
-    static uint32_t last_blink_tick = 0;
-
+    // }  
     vkeyKey_Tick(&tKey0);
     ekeyKeyEvent event = ekeyKey_GetEvent(&tKey0);
   
@@ -131,7 +125,7 @@ int main(void)
     {
     case KEY_EVENT_PRESS:
       vledLed_Toggle();
-      // vusartUSART_Print("for test");
+      // vusartUSART_Print("led toggle");
       break;
     case KEY_EVENT_LONG_PRESS:
       break;

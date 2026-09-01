@@ -34,6 +34,10 @@ typedef struct{
     bool event_taken;  // 事件是否被拿走了
 } tkeyKey;
 
+extern tkeyKey tKey0;
+extern tkeyKey tKey1;
+extern tkeyKey tKey2;
+
 void vkeyKey_Init(GPIO_TypeDef *port, uint16_t pin, uint16_t active_level, tkeyKey *key);
 void vkeyKey_Tick(tkeyKey *key);
 ekeyKeyEvent ekeyKey_GetEvent(tkeyKey *key);
