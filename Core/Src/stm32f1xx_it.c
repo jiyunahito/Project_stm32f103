@@ -59,6 +59,7 @@
 /* External variables --------------------------------------------------------*/
 
 /* USER CODE BEGIN EV */
+extern volatile uint32_t u32Tick;
 extern tusartTXBuffer tusartTX1;
 extern tusartRXBuffer tusartRX1;
 /* USER CODE END EV */
@@ -186,7 +187,7 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-  vIncTick();
+  u32Tick++;
   /* USER CODE END SysTick_IRQn 0 */
 
   /* USER CODE BEGIN SysTick_IRQn 1 */

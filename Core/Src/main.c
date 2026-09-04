@@ -45,7 +45,7 @@
 
 /* USER CODE BEGIN PV */
 
-static volatile uint32_t u32Tick = 0; // System Tick
+volatile uint32_t u32Tick = 0; // System Tick
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -124,7 +124,7 @@ int main(void)
     switch (event)
     {
     case KEY_EVENT_PRESS:
-      vledLed_Toggle();
+      vledLed_Toggle(&LED0);
       // vusartUSART_Print("led toggle");
       break;
     case KEY_EVENT_LONG_PRESS:
