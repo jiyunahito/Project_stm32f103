@@ -10,8 +10,11 @@ typedef struct{
     uint16_t pin;
 } tledLED;
 
-void vledLed_On(void);
-void vledLed_Off(void);
-void vledLed_Toggle(void);
+extern tledLED LED0;
+extern tledLED LED1;
+
+void vledLed_On(tledLED *led);
+void vledLed_Off(tledLED *led);
+void vledLed_Toggle(tledLED *led);
 
 #endif
