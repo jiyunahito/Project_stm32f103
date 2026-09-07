@@ -22,10 +22,10 @@ void vusartUSART_Print(const char *text){
     for(uint16_t i = 0; i < size; i++){
         tusartTX1.tx_buffer[i] = (uint8_t)text[i];
     }
-    tusartTX1.tx_buffer[size] = '\r';
-    tusartTX1.tx_buffer[size + 1] = '\n';
+    tusartTX1.tx_buffer[size++] = '\r';
+    tusartTX1.tx_buffer[size++] = '\n';
 
-    tusartTX1.tx_size = size + 2;
+    tusartTX1.tx_size = size;
     tusartTX1.tx_index = 0;
     tusartTX1.is_tx_busy = 1;
 
