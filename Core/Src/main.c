@@ -52,6 +52,7 @@ volatile uint32_t u32Tick = 0; // System Tick
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 
@@ -91,7 +92,9 @@ int main(void)
 
   /* USER CODE BEGIN Init */
   
-  static uint32_t u32LED0_Tick = 0; // 紀錄上一次LED0動作的時間  
+  // uint32_t u32LED0_Tick = 0; // 紀錄上一次LED0動作的時間
+  ekeyKeyEvent ekeyEvent0;
+  ekeyKeyEvent ekeyEvent1;
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -104,8 +107,10 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART1_UART_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   vkeyKey_Init(KEY0_GPIO_Port, KEY0_Pin, ACTIVE_LOW, &tKey0);
+  vkeyKey_Init(KEY1_GPIO_Port, KEY1_Pin, ACTIVE_LOW, &tKey1);
   // vusartUSART_Init();
   // vusartUSART_Print("============");
   /* USER CODE END 2 */
@@ -119,15 +124,32 @@ int main(void)
     //   vledLed_Toggle();
     // }  
     vkeyKey_Tick(&tKey0);
-    ekeyKeyEvent event = ekeyKey_GetEvent(&tKey0);
-  
-    switch (event)
+    vkeyKey_Tick(&tKey1);
+    ekeyEvent0 = ekeyKey_GetEvent(&tKey0);
+    ekeyEvent1 = ekeyKey_GetEvent(&tKey1);
+
+    switch (ekeyEvent0)
     {
     case KEY_EVENT_PRESS:
-      vledLed_Toggle(&LED0);
+      vledLed_PWM_CCR_Change(15);
       // vusartUSART_Print("led toggle");
       break;
     case KEY_EVENT_LONG_PRESS:
+      vledLed_PWM_CCR_Change(100);
+      break;
+    case KEY_EVENT_RELEASE:
+      break;  
+    default:
+      break;
+    }
+
+    switch (ekeyEvent1)
+    {
+    case KEY_EVENT_PRESS:
+      vledLed_Toggle(&LED1);  
+      break;
+    case KEY_EVENT_LONG_PRESS:
+      vledLed_Off(&LED1);
       break;
     case KEY_EVENT_RELEASE:
       break;  
@@ -171,6 +193,63 @@ void SystemClock_Config(void)
   }
   LL_Init1msTick(8000000);
   LL_SetSystemCoreClock(8000000);
+}
+
+/**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  LL_TIM_InitTypeDef TIM_InitStruct = {0};
+  LL_TIM_OC_InitTypeDef TIM_OC_InitStruct = {0};
+
+  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  /* Peripheral clock enable */
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM3);
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  TIM_InitStruct.Prescaler = 7;
+  TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
+  TIM_InitStruct.Autoreload = 999;
+  TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
+  LL_TIM_Init(TIM3, &TIM_InitStruct);
+  LL_TIM_DisableARRPreload(TIM3);
+  LL_TIM_SetClockSource(TIM3, LL_TIM_CLOCKSOURCE_INTERNAL);
+  LL_TIM_OC_EnablePreload(TIM3, LL_TIM_CHANNEL_CH2);
+  TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_PWM1;
+  TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
+  TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
+  TIM_OC_InitStruct.CompareValue = 0;
+  TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
+  LL_TIM_OC_Init(TIM3, LL_TIM_CHANNEL_CH2, &TIM_OC_InitStruct);
+  LL_TIM_OC_DisableFast(TIM3, LL_TIM_CHANNEL_CH2);
+  LL_TIM_SetTriggerOutput(TIM3, LL_TIM_TRGO_RESET);
+  LL_TIM_DisableMasterSlaveMode(TIM3);
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
+  /**TIM3 GPIO Configuration
+  PB5   ------> TIM3_CH2
+  */
+  GPIO_InitStruct.Pin = LED0_Pin;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  LL_GPIO_Init(LED0_GPIO_Port, &GPIO_InitStruct);
+
+  LL_GPIO_AF_RemapPartial_TIM3();
+
 }
 
 /**
@@ -251,9 +330,6 @@ static void MX_GPIO_Init(void)
   LL_GPIO_ResetOutputPin(LED1_GPIO_Port, LED1_Pin);
 
   /**/
-  LL_GPIO_ResetOutputPin(LED0_GPIO_Port, LED0_Pin);
-
-  /**/
   GPIO_InitStruct.Pin = KEY2_Pin|KEY1_Pin|KEY0_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
@@ -265,13 +341,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   LL_GPIO_Init(LED1_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = LED0_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  LL_GPIO_Init(LED0_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 

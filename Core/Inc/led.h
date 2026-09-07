@@ -16,5 +16,6 @@ extern tledLED LED1;
 void vledLed_On(tledLED *led);
 void vledLed_Off(tledLED *led);
 void vledLed_Toggle(tledLED *led);
+void vledLed_PWM_CCR_Change(uint8_t duty_cycle_ratio);
 
 #endif
