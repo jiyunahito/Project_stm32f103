@@ -2,11 +2,19 @@
 #define USART_H
 
 #include "main.h"
+#include "stdbool.h"
 #include <stdint.h>
 
 #define UART_BUF_SIZE 128U
+#define CMD_SIZE 64
 #define FRAME_READY 1
 #define FRAME_NOT_READY 0
+
+#ifndef DEBUG_LOG
+#define TRACE(message) ((void)0)
+#else
+#define TRACE(message) vusartUSART_Print(message)
+#endif
 
 typedef struct{
     uint8_t tx_buffer[UART_BUF_SIZE];
@@ -16,7 +24,7 @@ typedef struct{
 } tusartTXBuffer;
 
 typedef struct{
-    uint8_t rx_buffer[UART_BUF_SIZE];
+    volatile uint8_t rx_buffer[UART_BUF_SIZE];
     volatile uint8_t frame_ready_flag;
     volatile uint16_t head;
     volatile uint16_t tail;
@@ -25,6 +33,7 @@ typedef struct{
 typedef enum{
     USART_CMD_NONE = 0,
     USART_CMD_LED_ON,
+    USART_CMD_UNKNOWN
 } eusartUSART_Cmd;
 
 void vusartUSART_Init(void);

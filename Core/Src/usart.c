@@ -4,6 +4,27 @@
 
 tusartTXBuffer tusartTX1;
 tusartRXBuffer tusartRX1;
+static char cusartLine_Buffer[CMD_SIZE]; // 分析指令用的buffer
+static uint8_t u8usartLine_Index = 0; // 分析指令用buffer的index
+
+static inline bool busartRingBuffer_Pop(tusartRXBuffer *buffer, uint8_t *ch){
+    if(buffer->tail != buffer->head){
+        *ch = buffer->rx_buffer[buffer->tail++];
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+static eusartUSART_Cmd eusartParse_Command(const char *line){
+    if(strcmp(line, "led on") == 0){
+        return USART_CMD_LED_ON;
+    }
+    else{
+        return USART_CMD_UNKNOWN;
+    }
+}
 
 void vusartUSART_Init(void){
     tusartTX1.tx_size = 0;
@@ -38,12 +59,41 @@ void vusartUSART_PrintBytes(const uint8_t *data, uint16_t len){
 }
 
 void vusartUSART_StartRX(void){
-    
+    LL_USART_EnableIT_RXNE(USART1);
 }
 
-// eusartUSART_Cmd eusartUSART_Poll(void){
-
-// }
+eusartUSART_Cmd eusartUSART_Poll(void){    
+    uint8_t ch;    
+    
+    while(busartRingBuffer_Pop(&tusartRX1, &ch)){
+        if( ch == '\r' || ch == '\n'){
+            if(u8usartLine_Index > 0){
+                cusartLine_Buffer[u8usartLine_Index] = '\0';                
+                tusartRX1.frame_ready_flag = FRAME_READY;
+                u8usartLine_Index = 0;
+                break;
+            }
+        }
+        else{
+            if(u8usartLine_Index < (CMD_SIZE - 1)){
+                cusartLine_Buffer[u8usartLine_Index] = (char)ch;
+            }
+            else{
+                cusartLine_Buffer[u8usartLine_Index] = '\0';                
+                tusartRX1.frame_ready_flag = FRAME_READY;
+                u8usartLine_Index = 0;
+                break;
+            }
+        }
+    }
+    if(tusartRX1.frame_ready_flag == FRAME_READY){
+        tusartRX1.frame_ready_flag = FRAME_NOT_READY;
+        return eusartParse_Command(cusartLine_Buffer);
+    }
+    else{
+        return USART_CMD_NONE;
+    }
+}
 
 // int _write(int file, char *ptr, int len){ // 不是走usart中斷 不需要enableIT_TXE
 //     for(int i = 0; i < len; i++){

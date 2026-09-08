@@ -95,6 +95,7 @@ int main(void)
   // uint32_t u32LED0_Tick = 0; // 紀錄上一次LED0動作的時間
   ekeyKeyEvent ekeyEvent0;
   ekeyKeyEvent ekeyEvent1;
+  eusartUSART_Cmd eusartCMD;
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -111,7 +112,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   vkeyKey_Init(KEY0_GPIO_Port, KEY0_Pin, ACTIVE_LOW, &tKey0);
   vkeyKey_Init(KEY1_GPIO_Port, KEY1_Pin, ACTIVE_LOW, &tKey1);
-  // vusartUSART_Init();
+  vusartUSART_Init();
+  // LL_mDelay(1);
   // vusartUSART_Print("============");
   /* USER CODE END 2 */
 
@@ -119,10 +121,20 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {        
-    // if(u32GetTick() - u32LED0_Tick >= LED_EXECUTE_INTERVAL){
-    //   u32LED0_Tick = u32GetTick();
-    //   vledLed_Toggle();
-    // }  
+    /* 接收串口訊息並執行動作*/
+    eusartCMD = eusartUSART_Poll();
+    switch (eusartCMD)
+    {
+    case USART_CMD_LED_ON:
+      /* code */
+      break;
+    case USART_CMD_UNKNOWN:
+        vusartUSART_Print("unknown!");
+      break;
+    default:
+      break;
+    }
+
     vkeyKey_Tick(&tKey0);
     vkeyKey_Tick(&tKey1);
     ekeyEvent0 = ekeyKey_GetEvent(&tKey0);
@@ -131,11 +143,11 @@ int main(void)
     switch (ekeyEvent0)
     {
     case KEY_EVENT_PRESS:
-      vledLed_PWM_CCR_Change(15);
-      // vusartUSART_Print("led toggle");
+      vledLed_PWM_CCR_Change(5);
+      vusartUSART_Print("led toggle");
       break;
     case KEY_EVENT_LONG_PRESS:
-      vledLed_PWM_CCR_Change(100);
+      vledLed_PWM_CCR_Change(80);
       break;
     case KEY_EVENT_RELEASE:
       break;  
@@ -236,7 +248,7 @@ static void MX_TIM3_Init(void)
   LL_TIM_SetTriggerOutput(TIM3, LL_TIM_TRGO_RESET);
   LL_TIM_DisableMasterSlaveMode(TIM3);
   /* USER CODE BEGIN TIM3_Init 2 */
-
+  LL_TIM_EnableCounter(TIM3);
   /* USER CODE END TIM3_Init 2 */
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
   /**TIM3 GPIO Configuration
