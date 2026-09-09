@@ -110,9 +110,14 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+  // LL_TIM_EnableARRPreload(TIM3);
+  LL_TIM_CC_EnableChannel(TIM3,LL_TIM_CHANNEL_CH2);
+  LL_TIM_EnableCounter(TIM3);
+
   vkeyKey_Init(KEY0_GPIO_Port, KEY0_Pin, ACTIVE_LOW, &tKey0);
   vkeyKey_Init(KEY1_GPIO_Port, KEY1_Pin, ACTIVE_LOW, &tKey1);
   vusartUSART_Init();
+  vusartUSART_StartRX();
   // LL_mDelay(1);
   // vusartUSART_Print("============");
   /* USER CODE END 2 */
@@ -126,7 +131,8 @@ int main(void)
     switch (eusartCMD)
     {
     case USART_CMD_LED_ON:
-      /* code */
+        vledLed_On(&LED1);
+        vusartUSART_Print("RX test success!!!");
       break;
     case USART_CMD_UNKNOWN:
         vusartUSART_Print("unknown!");
@@ -143,11 +149,11 @@ int main(void)
     switch (ekeyEvent0)
     {
     case KEY_EVENT_PRESS:
-      vledLed_PWM_CCR_Change(5);
+      vledLed_PWM_CCR_Change(0);
       vusartUSART_Print("led toggle");
       break;
     case KEY_EVENT_LONG_PRESS:
-      vledLed_PWM_CCR_Change(80);
+      vledLed_PWM_CCR_Change(100);
       break;
     case KEY_EVENT_RELEASE:
       break;  
@@ -242,13 +248,13 @@ static void MX_TIM3_Init(void)
   TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.CompareValue = 0;
-  TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
+  TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_LOW;
   LL_TIM_OC_Init(TIM3, LL_TIM_CHANNEL_CH2, &TIM_OC_InitStruct);
   LL_TIM_OC_DisableFast(TIM3, LL_TIM_CHANNEL_CH2);
   LL_TIM_SetTriggerOutput(TIM3, LL_TIM_TRGO_RESET);
   LL_TIM_DisableMasterSlaveMode(TIM3);
   /* USER CODE BEGIN TIM3_Init 2 */
-  LL_TIM_EnableCounter(TIM3);
+
   /* USER CODE END TIM3_Init 2 */
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
   /**TIM3 GPIO Configuration
