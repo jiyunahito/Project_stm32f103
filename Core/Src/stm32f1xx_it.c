@@ -211,6 +211,7 @@ void USART1_IRQHandler(void)
   
   /* 接收中斷(RXNE) */
   if( LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1)){
+    // LL_DMA_IsEnabledChannel(DMA1, LL_DMA_CHANNEL_5); // 給DMA版本使用的判斷式 需要自己手動讓ring buffer's index更新 (此方法似乎不好 會一直進中斷)
     uint8_t data = LL_USART_ReceiveData8(USART1);
     uint16_t next_head = (tusartRX1.head + 1) & (UART_BUF_SIZE - 1);
 
@@ -226,7 +227,11 @@ void USART1_IRQHandler(void)
   /* 空閒(IDLE) */
   if( LL_USART_IsActiveFlag_IDLE(USART1) && LL_USART_IsEnabledIT_IDLE(USART1)){
     LL_USART_ClearFlag_IDLE(USART1);
-    // tusartRX1.frame_ready_flag = FRAME_READY; 
+
+    // uint16_t current_head = UART_BUF_SIZE - LL_DMA_GetDataLength(DMA1, LL_DMA_CHANNEL_5);
+    // if(current_head > tusartRX1.head){
+
+    // }
   }
 
   /* 發送中斷(TXE) */

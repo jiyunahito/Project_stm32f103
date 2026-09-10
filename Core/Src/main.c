@@ -138,6 +138,7 @@ int main(void)
         vusartUSART_Print("unknown!");
       break;
     default:
+        vusartUSART_Print("maybe none or error");
       break;
     }
 
