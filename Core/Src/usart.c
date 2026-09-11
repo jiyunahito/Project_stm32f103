@@ -1,6 +1,7 @@
 #include "usart.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 tusartTXBuffer tusartTX1;
 tusartRXBuffer tusartRX1;
@@ -35,10 +36,18 @@ void vusartUSART_Init(void){
     tusartRX1.frame_ready_flag = FRAME_NOT_READY;
 }
 
-void vusartUSART_Print(const char *text){    
+void vusartUSART_Print(const char *text, ...){    
     if(text == NULL || tusartTX1.is_tx_busy) return;
 
-    uint16_t size = (uint16_t)strlen(text);
+    va_list args;
+    va_start(args, text);
+
+    int len = vsniprintf((char *)tusartTX1.tx_buffer, sizeof(tusartTX1.tx_buffer) - 2, text, args);
+    va_end(args);
+
+    if(len < 0) return;
+    
+    uint16_t size = (uint16_t)len;
 
     for(uint16_t i = 0; i < size; i++){
         tusartTX1.tx_buffer[i] = (uint8_t)text[i];
@@ -106,6 +115,8 @@ eusartUSART_Cmd eusartUSART_Poll(void){
         return USART_CMD_NONE;
     }
 }
+
+
 
 // int _write(int file, char *ptr, int len){ // 不是走usart中斷 不需要enableIT_TXE
 //     for(int i = 0; i < len; i++){
