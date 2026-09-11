@@ -62,6 +62,7 @@
 extern volatile uint32_t u32Tick;
 extern tusartTXBuffer tusartTX1;
 extern tusartRXBuffer tusartRX1;
+extern volatile uint16_t uadcADC1_Value;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -201,6 +202,22 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f1xx.s).                    */
 /******************************************************************************/
+
+/**
+  * @brief This function handles ADC1 and ADC2 global interrupts.
+  */
+void ADC1_2_IRQHandler(void)
+{
+  /* USER CODE BEGIN ADC1_2_IRQn 0 */
+  if(LL_ADC_IsActiveFlag_EOS(ADC1)){
+    // LL_ADC_ClearFlag_EOS(ADC1); 
+    uadcADC1_Value = LL_ADC_REG_ReadConversionData12(ADC1);
+  }
+  /* USER CODE END ADC1_2_IRQn 0 */
+  /* USER CODE BEGIN ADC1_2_IRQn 1 */
+
+  /* USER CODE END ADC1_2_IRQn 1 */
+}
 
 /**
   * @brief This function handles USART1 global interrupt.

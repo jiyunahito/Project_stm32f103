@@ -27,6 +27,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+#include "stm32f1xx_ll_adc.h"
 #include "stm32f1xx_ll_rcc.h"
 #include "stm32f1xx_ll_bus.h"
 #include "stm32f1xx_ll_system.h"
@@ -96,7 +97,7 @@ uint32_t u32GetTick(void);
 #endif
 
 /* USER CODE BEGIN Private defines */
-
+// #define DEBUG_LOG
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

@@ -24,6 +24,7 @@
 #include "led.h"
 #include "key.h"
 #include "usart.h"
+#include "adc.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +47,7 @@
 /* USER CODE BEGIN PV */
 
 volatile uint32_t u32Tick = 0; // System Tick
+float fChangeable_Resistor_Voltage = 0.0f;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -53,6 +55,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 
 
@@ -96,6 +99,7 @@ int main(void)
   ekeyKeyEvent ekeyEvent0;
   ekeyKeyEvent ekeyEvent1;
   eusartUSART_Cmd eusartCMD;
+
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -109,17 +113,20 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_TIM3_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   // LL_TIM_EnableARRPreload(TIM3);
   LL_TIM_CC_EnableChannel(TIM3,LL_TIM_CHANNEL_CH2);
   LL_TIM_EnableCounter(TIM3);
 
-  vkeyKey_Init(KEY0_GPIO_Port, KEY0_Pin, ACTIVE_LOW, &tKey0);
-  vkeyKey_Init(KEY1_GPIO_Port, KEY1_Pin, ACTIVE_LOW, &tKey1);
   vusartUSART_Init();
   vusartUSART_StartRX();
-  // LL_mDelay(1);
-  // vusartUSART_Print("============");
+
+  vkeyKey_Init(KEY0_GPIO_Port, KEY0_Pin, ACTIVE_LOW, &tKey0);
+  vkeyKey_Init(KEY1_GPIO_Port, KEY1_Pin, ACTIVE_LOW, &tKey1);
+
+  vadcADC1_Init();
+  vadcADC1_Read();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -136,9 +143,10 @@ int main(void)
       break;
     case USART_CMD_UNKNOWN:
         vusartUSART_Print("unknown!");
+        vusartUSART_Print("speed test");
+        TRACE("trace test!!");
       break;
-    default:
-        vusartUSART_Print("maybe none or error");
+    default:        
       break;
     }
 
@@ -151,10 +159,11 @@ int main(void)
     {
     case KEY_EVENT_PRESS:
       vledLed_PWM_CCR_Change(0);
-      vusartUSART_Print("led toggle");
+      vusartUSART_Print("voltage : %f V", fChangeable_Resistor_Voltage);
       break;
     case KEY_EVENT_LONG_PRESS:
       vledLed_PWM_CCR_Change(100);
+      vusartUSART_Print("long press test");
       break;
     case KEY_EVENT_RELEASE:
       break;  
@@ -165,16 +174,18 @@ int main(void)
     switch (ekeyEvent1)
     {
     case KEY_EVENT_PRESS:
-      vledLed_Toggle(&LED1);  
+      vadcADC1_Read();
       break;
     case KEY_EVENT_LONG_PRESS:
-      vledLed_Off(&LED1);
+      vledLed_Toggle(&LED1);
       break;
     case KEY_EVENT_RELEASE:
       break;  
     default:
       break;
     }
+
+    fChangeable_Resistor_Voltage = fadcADC1_GetVoltage();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -212,6 +223,68 @@ void SystemClock_Config(void)
   }
   LL_Init1msTick(8000000);
   LL_SetSystemCoreClock(8000000);
+  LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSRC_PCLK2_DIV_2);
+}
+
+/**
+  * @brief ADC1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC1_Init(void)
+{
+
+  /* USER CODE BEGIN ADC1_Init 0 */
+
+  /* USER CODE END ADC1_Init 0 */
+
+  LL_ADC_InitTypeDef ADC_InitStruct = {0};
+  LL_ADC_CommonInitTypeDef ADC_CommonInitStruct = {0};
+  LL_ADC_REG_InitTypeDef ADC_REG_InitStruct = {0};
+
+  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  /* Peripheral clock enable */
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_ADC1);
+
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOA);
+  /**ADC1 GPIO Configuration
+  PA1   ------> ADC1_IN1
+  */
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_1;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
+  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /* ADC1 interrupt Init */
+  NVIC_SetPriority(ADC1_2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+  NVIC_EnableIRQ(ADC1_2_IRQn);
+
+  /* USER CODE BEGIN ADC1_Init 1 */
+
+  /* USER CODE END ADC1_Init 1 */
+
+  /** Common config
+  */
+  ADC_InitStruct.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;
+  ADC_InitStruct.SequencersScanMode = LL_ADC_SEQ_SCAN_DISABLE;
+  LL_ADC_Init(ADC1, &ADC_InitStruct);
+  ADC_CommonInitStruct.Multimode = LL_ADC_MULTI_INDEPENDENT;
+  LL_ADC_CommonInit(__LL_ADC_COMMON_INSTANCE(ADC1), &ADC_CommonInitStruct);
+  ADC_REG_InitStruct.TriggerSource = LL_ADC_REG_TRIG_SOFTWARE;
+  ADC_REG_InitStruct.SequencerLength = LL_ADC_REG_SEQ_SCAN_DISABLE;
+  ADC_REG_InitStruct.SequencerDiscont = LL_ADC_REG_SEQ_DISCONT_DISABLE;
+  ADC_REG_InitStruct.ContinuousMode = LL_ADC_REG_CONV_SINGLE;
+  ADC_REG_InitStruct.DMATransfer = LL_ADC_REG_DMA_TRANSFER_NONE;
+  LL_ADC_REG_Init(ADC1, &ADC_REG_InitStruct);
+
+  /** Configure Regular Channel
+  */
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_1, LL_ADC_CHANNEL_1);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_1, LL_ADC_SAMPLINGTIME_239CYCLES_5);
+  /* USER CODE BEGIN ADC1_Init 2 */
+
+  /* USER CODE END ADC1_Init 2 */
+
 }
 
 /**
