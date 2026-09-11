@@ -36,6 +36,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     Core/Inc/led.h
     Core/Inc/key.h
     Core/Inc/usart.h
+    Core/Inc/adc.h
 )
 
 # Add STM32CubeMX generated sources
@@ -52,6 +53,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/led.c
     Core/Src/key.c
     Core/Src/usart.c
+    Core/Src/adc.c
 )
 
 # Add include paths
@@ -62,6 +64,12 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add project symbols (macros)
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined symbols
+)
+
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
+    # Add user compile options
+    -Wfloat-conversion
+    # -mfloat-abi=soft
 )
 
 # Remove wrong libob.a library dependency when using cpp files
