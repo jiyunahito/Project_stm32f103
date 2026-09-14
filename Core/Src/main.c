@@ -47,7 +47,7 @@
 /* USER CODE BEGIN PV */
 
 volatile uint32_t u32Tick = 0; // System Tick
-float fChangeable_Resistor_Voltage = 0.0f;
+uint16_t uChangeable_Resistor_Voltage = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -159,7 +159,7 @@ int main(void)
     {
     case KEY_EVENT_PRESS:
       vledLed_PWM_CCR_Change(0);
-      vusartUSART_Print("voltage : %f V", fChangeable_Resistor_Voltage);
+      vusartUSART_Print("voltage : %d mV", uChangeable_Resistor_Voltage);
       break;
     case KEY_EVENT_LONG_PRESS:
       vledLed_PWM_CCR_Change(100);
@@ -185,7 +185,8 @@ int main(void)
       break;
     }
 
-    fChangeable_Resistor_Voltage = fadcADC1_GetVoltage();
+    uChangeable_Resistor_Voltage = uadcADC1_GetVoltage();
+    // vadcADC1_Read();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

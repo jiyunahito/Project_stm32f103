@@ -5,6 +5,6 @@
 
 void vadcADC1_Init(void);
 void vadcADC1_Read(void);
-float fadcADC1_GetVoltage(void);
+uint16_t uadcADC1_GetVoltage(void);
 
 #endif

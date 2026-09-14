@@ -49,9 +49,9 @@ void vusartUSART_Print(const char *text, ...){
     
     uint16_t size = (uint16_t)len;
 
-    for(uint16_t i = 0; i < size; i++){
-        tusartTX1.tx_buffer[i] = (uint8_t)text[i];
-    }
+    // for(uint16_t i = 0; i < size; i++){
+    //     tusartTX1.tx_buffer[i] = (uint8_t)text[i];
+    // }
     tusartTX1.tx_buffer[size++] = '\r'; // 補上回開頭
     tusartTX1.tx_buffer[size++] = '\n'; // 補上跳行
 
@@ -64,7 +64,7 @@ void vusartUSART_Print(const char *text, ...){
     // LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_4); // 為了修改DMA_CNDTRx 必須關閉
     // LL_USART_EnableIT_TC(USART1);
 
-    // LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_4, tusartTX1.tx_buffer, \
+    // LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_4, tusartTX1.tx_buffer, 
     //                     LL_USART_DMA_GetRegAddr(USART1), LL_DMA_DIRECTION_MEMORY_TO_PERIPH); // 也許可以放在初始化裡
     // LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_4, (uint32_t)tusartTX1.tx_size);
     

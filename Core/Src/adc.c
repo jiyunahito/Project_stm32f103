@@ -1,7 +1,8 @@
 #include "adc.h"
 
 volatile uint16_t uadcADC1_Value = 0U;
-float fadcvoltage = 0.0f;
+// float fadcvoltage = 0.0f;
+uint16_t uadcVoltage_mV = 0;
 
 void vadcADC1_Init(void){
     LL_ADC_Enable(ADC1);
@@ -17,10 +18,16 @@ void vadcADC1_Read(void){
     LL_ADC_REG_StartConversionSWStart(ADC1);
 }
 
-float fadcADC1_GetVoltage(void){
+uint16_t uadcADC1_GetVoltage(void){
     if(LL_ADC_IsActiveFlag_EOS(ADC1)){
-        fadcvoltage = ((float)uadcADC1_Value / 4095.0f) * 3.3f;
+        //fadcvoltage = ((float)uadcADC1_Value / 4095.0f) * 3.3f; // 將ADC轉換為實際電壓(以下是效能優化版本)
+        /**
+         * 先放大65536(3.3*4095*65536 約等於52.812) 避免小數再放大1000倍(所以單位從V變為mV)
+         * 再將ADC * 52812U 後 右移16 即得實際電壓值(mV)
+         */        
+        uadcVoltage_mV = (uint16_t)((uadcADC1_Value * 52812U) >> 16);
+        // uadcVoltage_mV = (uint16_t)(((uadcADC1_Value * 52812U) + 32768U) >> 16); // 避免向下取整 可加上位移量的一半達到四捨五入
         LL_ADC_ClearFlag_EOS(ADC1);
     }
-    return fadcvoltage;    
+    return uadcVoltage_mV;    
 }
