@@ -59,16 +59,18 @@ void vusartUSART_Print(const char *text, ...){
     tusartTX1.tx_index = 0;
     tusartTX1.is_tx_busy = 1; 
 
-    LL_USART_EnableIT_TXE(USART1); // 用DMA版本 這行必須關掉
+    LL_USART_EnableIT_TXE(USART1); // 用DMA版本 這行必須關掉(使用DMA就不依賴USART的中斷)
     /* 以下為DMA版本 */
     // LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_4); // 為了修改DMA_CNDTRx 必須關閉
-    // LL_USART_EnableIT_TC(USART1);
+    // LL_USART_EnableIT_TC(USART1); // This bit is set by hardware if the transmission of a frame containing data is complete and if
+    //                                  TXE is set (TXE沒開時 這行應該沒作用)
 
-    // LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_4, tusartTX1.tx_buffer, 
-    //                     LL_USART_DMA_GetRegAddr(USART1), LL_DMA_DIRECTION_MEMORY_TO_PERIPH); // 也許可以放在初始化裡
+    // LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_4, (uint32_t)tusartTX1.tx_buffer, 
+                        // LL_USART_DMA_GetRegAddr(USART1), LL_DMA_DIRECTION_MEMORY_TO_PERIPH); // 也許可以放在初始化裡
     // LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_4, (uint32_t)tusartTX1.tx_size);
     
     // LL_USART_EnableDMAReq_TX(USART1); // 可放在初始化
+    // LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_4); // 可放在初始化?
     // LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_4); // 
 }
 
@@ -116,7 +118,25 @@ eusartUSART_Cmd eusartUSART_Poll(void){
     }
 }
 
+void vusartUSART_TX_By_DMA_Init(void){
+    LL_USART_EnableDMAReq_TX(USART1); // 可放在初始化
+    
+    LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_4, 
+                            (uint32_t)tusartTX1.tx_buffer, LL_USART_DMA_GetRegAddr(USART1), LL_DMA_DIRECTION_MEMORY_TO_PERIPH); // 也許可以放在初始化裡    
+    LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_4); // 可放在初始化?
+}
 
+void vusartUSART_RX_By_DMA_Init(void){    
+    LL_USART_EnableIT_IDLE(USART1);
+    LL_USART_EnableDMAReq_RX(USART1);
+
+    LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_5);
+    LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_5, LL_USART_DMA_GetRegAddr(USART1), (uint32_t)tusartRX1.rx_buffer, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+    LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_5, DMA_BUF_SIZE);
+    LL_DMA_EnableIT_HT(DMA1, LL_DMA_CHANNEL_5);
+    LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_5);
+    LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_5);
+}
 
 // int _write(int file, char *ptr, int len){ // 不是走usart中斷 不需要enableIT_TXE
 //     for(int i = 0; i < len; i++){

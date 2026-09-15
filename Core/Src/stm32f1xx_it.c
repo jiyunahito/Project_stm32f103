@@ -63,6 +63,7 @@ extern volatile uint32_t u32Tick;
 extern tusartTXBuffer tusartTX1;
 extern tusartRXBuffer tusartRX1;
 extern volatile uint16_t uadcADC1_Value;
+extern volatile uint8_t uadcADC1_CanGetFlag;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -204,14 +205,30 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles DMA1 channel4 global interrupt.
+  */
+void DMA1_Channel4_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel4_IRQn 0 */
+  if(LL_DMA_IsActiveFlag_TC4(DMA1) && LL_DMA_IsEnabledIT_TC(DMA1, LL_DMA_CHANNEL_4)){
+    tusartTX1.is_tx_busy = 0;
+    LL_DMA_ClearFlag_TC4(DMA1);    
+  }
+  /* USER CODE END DMA1_Channel4_IRQn 0 */
+  /* USER CODE BEGIN DMA1_Channel4_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel4_IRQn 1 */
+}
+
+/**
   * @brief This function handles ADC1 and ADC2 global interrupts.
   */
 void ADC1_2_IRQHandler(void)
 {
   /* USER CODE BEGIN ADC1_2_IRQn 0 */
   if(LL_ADC_IsActiveFlag_EOS(ADC1)){
-    // LL_ADC_ClearFlag_EOS(ADC1); 
-    uadcADC1_Value = LL_ADC_REG_ReadConversionData12(ADC1);
+    uadcADC1_CanGetFlag = 1;
+    uadcADC1_Value = LL_ADC_REG_ReadConversionData12(ADC1); // It's cleared by reading the ADC_DR.
   }
   /* USER CODE END ADC1_2_IRQn 0 */
   /* USER CODE BEGIN ADC1_2_IRQn 1 */
@@ -250,7 +267,7 @@ void USART1_IRQHandler(void)
 
     // }
   }
-
+  /* 由USART中斷來發送 (TOP) */ 
   /* 發送中斷(TXE) */
   if(LL_USART_IsActiveFlag_TXE(USART1) && LL_USART_IsEnabledIT_TXE(USART1)){
     if(tusartTX1.tx_index < tusartTX1.tx_size){
@@ -268,7 +285,8 @@ void USART1_IRQHandler(void)
     LL_USART_ClearFlag_TC(USART1);
     tusartTX1.is_tx_busy = 0;
   }
-
+  /* 由USART中斷來發送 (END) */
+  
   /* USER CODE END USART1_IRQn 0 */
   /* USER CODE BEGIN USART1_IRQn 1 */
 

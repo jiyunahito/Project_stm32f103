@@ -6,6 +6,7 @@
 #include <stdint.h>
 
 #define UART_BUF_SIZE 128U
+#define DMA_BUF_SIZE 128U
 #define CMD_SIZE 64
 #define FRAME_READY 1
 #define FRAME_NOT_READY 0
@@ -41,5 +42,8 @@ void vusartUSART_Print(const char *text, ...) __attribute__((format(printf, 1, 2
 void vusartUSART_PrintBytes(const uint8_t *data, uint16_t len);
 void vusartUSART_StartRX(void);
 eusartUSART_Cmd eusartUSART_Poll(void);
+
+void vusartUSART_TX_By_DMA_Init(void);
+void vusartUSART_RX_By_DMA_Init(void);
 
 #endif
