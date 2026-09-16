@@ -26,7 +26,10 @@ typedef struct{
 
 typedef struct{
     volatile uint8_t rx_buffer[UART_BUF_SIZE];
-    volatile uint8_t frame_ready_flag;
+    union {
+        volatile uint8_t frame_ready_flag;
+        volatile uint8_t overrun_count;
+    };        
     volatile uint16_t head;
     volatile uint16_t tail;
 } tusartRXBuffer;
@@ -45,5 +48,7 @@ eusartUSART_Cmd eusartUSART_Poll(void);
 
 void vusartUSART_TX_By_DMA_Init(void);
 void vusartUSART_RX_By_DMA_Init(void);
+// void busartRingBuffer_Write(tusartRXBuffer *buffer, const uint8_t *data, uint16_t len);
+void vusartProcess_DMABuffer(void);
 
 #endif

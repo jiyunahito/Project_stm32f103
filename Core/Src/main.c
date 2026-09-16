@@ -122,9 +122,9 @@ int main(void)
   LL_TIM_EnableCounter(TIM3);
 
   vusartUSART_Init();
-  // vusartUSART_TX_By_DMA_Init();
-  // vusartUSART_RX_By_DMA_Init();
-  vusartUSART_StartRX();
+  vusartUSART_TX_By_DMA_Init();
+  vusartUSART_RX_By_DMA_Init();
+  // vusartUSART_StartRX();
 
   vkeyKey_Init(KEY0_GPIO_Port, KEY0_Pin, ACTIVE_LOW, &tKey0);
   vkeyKey_Init(KEY1_GPIO_Port, KEY1_Pin, ACTIVE_LOW, &tKey1);
@@ -191,7 +191,7 @@ int main(void)
     }
 
     uChangeable_Resistor_Voltage = uadcADC1_GetVoltage();
-    // vadcADC1_Read();
+    vadcADC1_Read();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -401,6 +401,21 @@ static void MX_USART1_UART_Init(void)
 
   LL_DMA_SetMemorySize(DMA1, LL_DMA_CHANNEL_4, LL_DMA_MDATAALIGN_BYTE);
 
+  /* USART1_RX Init */
+  LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_5, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+
+  LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_5, LL_DMA_PRIORITY_LOW);
+
+  LL_DMA_SetMode(DMA1, LL_DMA_CHANNEL_5, LL_DMA_MODE_CIRCULAR);
+
+  LL_DMA_SetPeriphIncMode(DMA1, LL_DMA_CHANNEL_5, LL_DMA_PERIPH_NOINCREMENT);
+
+  LL_DMA_SetMemoryIncMode(DMA1, LL_DMA_CHANNEL_5, LL_DMA_MEMORY_INCREMENT);
+
+  LL_DMA_SetPeriphSize(DMA1, LL_DMA_CHANNEL_5, LL_DMA_PDATAALIGN_BYTE);
+
+  LL_DMA_SetMemorySize(DMA1, LL_DMA_CHANNEL_5, LL_DMA_MDATAALIGN_BYTE);
+
   /* USART1 interrupt Init */
   NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
   NVIC_EnableIRQ(USART1_IRQn);
@@ -438,6 +453,9 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel4_IRQn interrupt configuration */
   NVIC_SetPriority(DMA1_Channel4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
   NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+  /* DMA1_Channel5_IRQn interrupt configuration */
+  NVIC_SetPriority(DMA1_Channel5_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+  NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 
 }
 

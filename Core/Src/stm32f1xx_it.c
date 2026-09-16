@@ -213,11 +213,32 @@ void DMA1_Channel4_IRQHandler(void)
   if(LL_DMA_IsActiveFlag_TC4(DMA1) && LL_DMA_IsEnabledIT_TC(DMA1, LL_DMA_CHANNEL_4)){
     tusartTX1.is_tx_busy = 0;
     LL_DMA_ClearFlag_TC4(DMA1);    
-  }
+  }  
   /* USER CODE END DMA1_Channel4_IRQn 0 */
   /* USER CODE BEGIN DMA1_Channel4_IRQn 1 */
 
   /* USER CODE END DMA1_Channel4_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 channel5 global interrupt.
+  */
+void DMA1_Channel5_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel5_IRQn 0 */
+  if(LL_DMA_IsActiveFlag_HT5(DMA1) && LL_DMA_IsEnabledIT_HT(DMA1, LL_DMA_CHANNEL_5)){
+    LL_DMA_ClearFlag_HT5(DMA1);
+    vusartProcess_DMABuffer();
+  }
+
+  if(LL_DMA_IsActiveFlag_TC5(DMA1) && LL_DMA_IsEnabledIT_TC(DMA1, LL_DMA_CHANNEL_5)){
+    LL_DMA_ClearFlag_TC5(DMA1);
+    vusartProcess_DMABuffer();
+  }
+  /* USER CODE END DMA1_Channel5_IRQn 0 */
+  /* USER CODE BEGIN DMA1_Channel5_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel5_IRQn 1 */
 }
 
 /**
@@ -244,47 +265,48 @@ void USART1_IRQHandler(void)
   /* USER CODE BEGIN USART1_IRQn 0 */
   
   /* 接收中斷(RXNE) */
-  if( LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1)){
-    // LL_DMA_IsEnabledChannel(DMA1, LL_DMA_CHANNEL_5); // 給DMA版本使用的判斷式 需要自己手動讓ring buffer's index更新 (此方法似乎不好 會一直進中斷)
-    uint8_t data = LL_USART_ReceiveData8(USART1);
-    uint16_t next_head = (tusartRX1.head + 1) & (UART_BUF_SIZE - 1);
+  // if( LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1)){
+  //   // LL_DMA_IsEnabledChannel(DMA1, LL_DMA_CHANNEL_5); // 給DMA版本使用的判斷式 需要自己手動讓ring buffer's index更新 (此方法似乎不好 會一直進中斷)
+  //   uint8_t data = LL_USART_ReceiveData8(USART1);
+  //   uint16_t next_head = (tusartRX1.head + 1) & (UART_BUF_SIZE - 1);
 
-    if(next_head != tusartRX1.tail){
-      tusartRX1.rx_buffer[tusartRX1.head] = data;
-      tusartRX1.head = next_head;      
-    }
-    else{
+  //   if(next_head != tusartRX1.tail){
+  //     tusartRX1.rx_buffer[tusartRX1.head] = data;
+  //     tusartRX1.head = next_head;      
+  //   }
+  //   else{
 
-    }
-  }
+  //   }
+  // }
 
   /* 空閒(IDLE) */
   if( LL_USART_IsActiveFlag_IDLE(USART1) && LL_USART_IsEnabledIT_IDLE(USART1)){
     LL_USART_ClearFlag_IDLE(USART1);
-
+    vusartProcess_DMABuffer();
     // uint16_t current_head = UART_BUF_SIZE - LL_DMA_GetDataLength(DMA1, LL_DMA_CHANNEL_5);
     // if(current_head > tusartRX1.head){
 
     // }
   }
   /* 由USART中斷來發送 (TOP) */ 
+  /* 用來給USART不藉由DMA */
   /* 發送中斷(TXE) */
-  if(LL_USART_IsActiveFlag_TXE(USART1) && LL_USART_IsEnabledIT_TXE(USART1)){
-    if(tusartTX1.tx_index < tusartTX1.tx_size){
-      LL_USART_TransmitData8(USART1, tusartTX1.tx_buffer[tusartTX1.tx_index++]);
-    }
-    else{
-      LL_USART_DisableIT_TXE(USART1);
-      LL_USART_EnableIT_TC(USART1);
-    }
-  }
+  // if(LL_USART_IsActiveFlag_TXE(USART1) && LL_USART_IsEnabledIT_TXE(USART1)){
+  //   if(tusartTX1.tx_index < tusartTX1.tx_size){
+  //     LL_USART_TransmitData8(USART1, tusartTX1.tx_buffer[tusartTX1.tx_index++]);
+  //   }
+  //   else{
+  //     LL_USART_DisableIT_TXE(USART1);
+  //     LL_USART_EnableIT_TC(USART1);
+  //   }
+  // }
 
   /* 發送完成(TC) */
-  if(LL_USART_IsActiveFlag_TC(USART1) && LL_USART_IsEnabledIT_TC(USART1)){
-    LL_USART_DisableIT_TC(USART1);
-    LL_USART_ClearFlag_TC(USART1);
-    tusartTX1.is_tx_busy = 0;
-  }
+  // if(LL_USART_IsActiveFlag_TC(USART1) && LL_USART_IsEnabledIT_TC(USART1)){
+  //   LL_USART_DisableIT_TC(USART1);
+  //   LL_USART_ClearFlag_TC(USART1);
+  //   tusartTX1.is_tx_busy = 0;
+  // }
   /* 由USART中斷來發送 (END) */
   
   /* USER CODE END USART1_IRQn 0 */
