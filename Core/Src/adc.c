@@ -23,7 +23,7 @@ uint16_t uadcADC1_GetVoltage(void){
     if(uadcADC1_CanGetFlag){
         //fadcvoltage = ((float)uadcADC1_Value / 4095.0f) * 3.3f; // 將ADC轉換為實際電壓(以下是效能優化版本)
         /**
-         * 先放大65536(3.3*4095*65536 約等於52.812) 避免小數再放大1000倍(所以單位從V變為mV)
+         * 先放大65536(3.3/4095*65536 約等於52.812) 避免小數再放大1000倍(所以單位從V變為mV)
          * 再將ADC * 52812U 後 右移16 即得實際電壓值(mV)
          */        
         uadcVoltage_mV = (uint16_t)((uadcADC1_Value * 52812U) >> 16);
