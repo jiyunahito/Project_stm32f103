@@ -70,6 +70,7 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user compile options
     -Wfloat-conversion
+    -fstack-protector
     # -mfloat-abi=soft
 )
 
