@@ -25,6 +25,7 @@
 #include "key.h"
 #include "usart.h"
 #include "adc.h"
+#include "lcd.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -44,6 +45,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 
+SRAM_HandleTypeDef hsram1;
+
 /* USER CODE BEGIN PV */
 
 volatile uint32_t u32Tick = 0; // System Tick
@@ -57,6 +60,7 @@ static void MX_DMA_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_ADC1_Init(void);
+static void MX_FSMC_Init(void);
 /* USER CODE BEGIN PFP */
 
 
@@ -81,25 +85,14 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_AFIO);
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
-
-  /* System interrupt init*/
-  NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
-
-  /* SysTick_IRQn interrupt configuration */
-  NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),15, 0));
-
-  /** NOJTAG: JTAG-DP Disabled and SW-DP Enabled
-  */
-  LL_GPIO_AF_Remap_SWJ_NOJTAG();
+  HAL_Init();
 
   /* USER CODE BEGIN Init */
   
   // uint32_t u32LED0_Tick = 0; // 紀錄上一次LED0動作的時間
-  ekeyKeyEvent ekeyEvent0;
-  ekeyKeyEvent ekeyEvent1;
-  eusartUSART_Cmd eusartCMD;
+  ekeyKeyEvent ekeyEvent0; // 紀錄key0事件
+  ekeyKeyEvent ekeyEvent1; // 紀錄key1事件
+  eusartUSART_Cmd eusartCMD; // 紀錄串口RX收到什麼指令
 
   /* USER CODE END Init */
 
@@ -116,6 +109,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM3_Init();
   MX_ADC1_Init();
+  MX_FSMC_Init();
   /* USER CODE BEGIN 2 */
   // LL_TIM_EnableARRPreload(TIM3);
   LL_TIM_CC_EnableChannel(TIM3,LL_TIM_CHANNEL_CH2);
@@ -131,6 +125,9 @@ int main(void)
 
   vadcADC1_Init();
   vadcADC1_Read();
+
+  vlcdLCD_Init();
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -153,7 +150,7 @@ int main(void)
     default:        
       break;
     }
-
+    /* key0 key1狀態讀取以及事件發生時要執行什麼動作 */
     vkeyKey_Tick(&tKey0);
     vkeyKey_Tick(&tKey1);
     ekeyEvent0 = ekeyKey_GetEvent(&tKey0);
@@ -163,7 +160,8 @@ int main(void)
     {
     case KEY_EVENT_PRESS:
       vledLed_PWM_CCR_Change(0);
-      vusartUSART_Print("voltage : %d mV", uChangeable_Resistor_Voltage);
+      // vusartUSART_Print("voltage : %d mV", uChangeable_Resistor_Voltage);
+      vusartUSART_Print("LCD ID : 0x%x", tlcdLCDInfo.id);
       break;
     case KEY_EVENT_LONG_PRESS:
       vledLed_PWM_CCR_Change(100);
@@ -189,7 +187,7 @@ int main(void)
     default:
       break;
     }
-
+    
     uChangeable_Resistor_Voltage = uadcADC1_GetVoltage();
     vadcADC1_Read();
     /* USER CODE END WHILE */
@@ -227,8 +225,13 @@ void SystemClock_Config(void)
   {
 
   }
-  LL_Init1msTick(8000000);
   LL_SetSystemCoreClock(8000000);
+
+   /* Update the time base */
+  if (HAL_InitTick (TICK_INT_PRIORITY) != HAL_OK)
+  {
+    Error_Handler();
+  }
   LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSRC_PCLK2_DIV_2);
 }
 
@@ -473,7 +476,10 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOE);
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOF);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOA);
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOG);
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOD);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
 
   /**/
@@ -495,6 +501,63 @@ static void MX_GPIO_Init(void)
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
   /* USER CODE END MX_GPIO_Init_2 */
+}
+
+/* FSMC initialization function */
+static void MX_FSMC_Init(void)
+{
+
+  /* USER CODE BEGIN FSMC_Init 0 */
+
+  /* USER CODE END FSMC_Init 0 */
+
+  FSMC_NORSRAM_TimingTypeDef Timing = {0};
+
+  /* USER CODE BEGIN FSMC_Init 1 */
+
+  /* USER CODE END FSMC_Init 1 */
+
+  /** Perform the SRAM1 memory initialization sequence
+  */
+  hsram1.Instance = FSMC_NORSRAM_DEVICE;
+  hsram1.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
+  /* hsram1.Init */
+  hsram1.Init.NSBank = FSMC_NORSRAM_BANK4;
+  hsram1.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
+  hsram1.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
+  hsram1.Init.MemoryDataWidth = FSMC_NORSRAM_MEM_BUS_WIDTH_16;
+  hsram1.Init.BurstAccessMode = FSMC_BURST_ACCESS_MODE_DISABLE;
+  hsram1.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;
+  hsram1.Init.WrapMode = FSMC_WRAP_MODE_DISABLE;
+  hsram1.Init.WaitSignalActive = FSMC_WAIT_TIMING_BEFORE_WS;
+  hsram1.Init.WriteOperation = FSMC_WRITE_OPERATION_ENABLE;
+  hsram1.Init.WaitSignal = FSMC_WAIT_SIGNAL_DISABLE;
+  hsram1.Init.ExtendedMode = FSMC_EXTENDED_MODE_DISABLE;
+  hsram1.Init.AsynchronousWait = FSMC_ASYNCHRONOUS_WAIT_DISABLE;
+  hsram1.Init.WriteBurst = FSMC_WRITE_BURST_DISABLE;
+  /* Timing */
+  Timing.AddressSetupTime = 1;
+  Timing.AddressHoldTime = 15;
+  Timing.DataSetupTime = 15;
+  Timing.BusTurnAroundDuration = 0;
+  Timing.CLKDivision = 16;
+  Timing.DataLatency = 17;
+  Timing.AccessMode = FSMC_ACCESS_MODE_A;
+  /* ExtTiming */
+
+  if (HAL_SRAM_Init(&hsram1, &Timing, NULL) != HAL_OK)
+  {
+    Error_Handler( );
+  }
+
+  /** Disconnect NADV
+  */
+
+  __HAL_AFIO_FSMCNADV_DISCONNECTED();
+
+  /* USER CODE BEGIN FSMC_Init 2 */
+
+  /* USER CODE END FSMC_Init 2 */
 }
 
 /* USER CODE BEGIN 4 */
