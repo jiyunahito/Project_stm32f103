@@ -10,20 +10,37 @@ void vlcdLCD_Init(void){
     tlcdLCDInfo.id = (tlcdLCDInfo.id << 8) | ulcdLCD_Read_Data();
 
     if(tlcdLCDInfo.id == 0x9341){
-        tlcdLCDInfo.width = 240;
-        tlcdLCDInfo.height = 320;
+        return;
+        // tlcdLCDInfo.width = 240;
+        // tlcdLCDInfo.height = 320;
 
-        vlcdLCD_Write_Reg(0xCF);
-        vlcdLCD_Write_Data(0x00); vlcdLCD_Write_Data(0xC1); vlcdLCD_Write_Data(0x30);
+        // vlcdLCD_Write_Reg(0xCF);
+        // vlcdLCD_Write_Data(0x00); vlcdLCD_Write_Data(0xC1); vlcdLCD_Write_Data(0x30);
 
-        vlcdLCD_Write_Reg(0xED);
-        vlcdLCD_Write_Data(0x64); vlcdLCD_Write_Data(0x03); vlcdLCD_Write_Data(0x12); vlcdLCD_Write_Data(0x81);
+        // vlcdLCD_Write_Reg(0xED);
+        // vlcdLCD_Write_Data(0x64); vlcdLCD_Write_Data(0x03); vlcdLCD_Write_Data(0x12); vlcdLCD_Write_Data(0x81);
 
-        vlcdLCD_Write_Reg(0x28);
-        vlcdLCD_Write_Reg(0x11);
-        vlcdLCD_Write_Reg(0x29);
+        // vlcdLCD_Write_Reg(0x28);
+        // vlcdLCD_Write_Reg(0x11);
+        // vlcdLCD_Write_Reg(0x29);
+
+        // vlcdLCD_Clear(WHITE);
     }
-    vlcdLCD_Clear(WHITE);
+    
+    vlcdLCD_Write_Reg(0x04);
+    (void)ulcdLCD_Read_Data();
+    (void)ulcdLCD_Read_Data();
+    tlcdLCDInfo.id = ulcdLCD_Read_Data();
+    tlcdLCDInfo.id = (tlcdLCDInfo.id << 8) | ulcdLCD_Read_Data();
+    if(tlcdLCDInfo.id == 0x8552){
+        return;
+    }
+
+    vlcdLCD_Write_Reg(0x00);
+    tlcdLCDInfo.id = ulcdLCD_Read_Data();
+    if(tlcdLCDInfo.id == 0x9325){
+        return;
+    }
 }
 
 void vlcdLCD_Write_Reg(uint16_t regval){

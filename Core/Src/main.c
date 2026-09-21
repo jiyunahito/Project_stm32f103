@@ -51,6 +51,7 @@ SRAM_HandleTypeDef hsram1;
 
 volatile uint32_t u32Tick = 0; // System Tick
 uint16_t uChangeable_Resistor_Voltage = 0;
+uint16_t uTestValue = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -110,10 +111,11 @@ int main(void)
   MX_TIM3_Init();
   MX_ADC1_Init();
   MX_FSMC_Init();
-  /* USER CODE BEGIN 2 */
+  /* USER CODE BEGIN 2 */  
+
   // LL_TIM_EnableARRPreload(TIM3);
   LL_TIM_CC_EnableChannel(TIM3,LL_TIM_CHANNEL_CH2);
-  LL_TIM_EnableCounter(TIM3);
+  LL_TIM_EnableCounter(TIM3);  
 
   vusartUSART_Init();
   vusartUSART_TX_By_DMA_Init();
@@ -161,7 +163,7 @@ int main(void)
     case KEY_EVENT_PRESS:
       vledLed_PWM_CCR_Change(0);
       // vusartUSART_Print("voltage : %d mV", uChangeable_Resistor_Voltage);
-      vusartUSART_Print("LCD ID : 0x%x", tlcdLCDInfo.id);
+      vusartUSART_Print("Test Value : %d", uTestValue); // if value = 255 means error existing!      
       break;
     case KEY_EVENT_LONG_PRESS:
       vledLed_PWM_CCR_Change(100);
@@ -176,7 +178,7 @@ int main(void)
     switch (ekeyEvent1)
     {
     case KEY_EVENT_PRESS:
-      vadcADC1_Read();
+      vusartUSART_Print("LCD ID : 0x%x", tlcdLCDInfo.id);
       vledLed_Off(&LED1);
       break;
     case KEY_EVENT_LONG_PRESS:
@@ -584,7 +586,8 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
 //   /* User can add his own implementation to report the HAL error return state */
-//   __disable_irq();
+  uTestValue = 255;
+  // __disable_irq();
 //   while (1)
 //   {
 //   }
