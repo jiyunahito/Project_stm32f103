@@ -78,6 +78,8 @@ uint32_t u32GetTick(void);
 #define KEY0_GPIO_Port GPIOE
 #define LED1_Pin LL_GPIO_PIN_5
 #define LED1_GPIO_Port GPIOE
+#define LCD_BL_Pin LL_GPIO_PIN_0
+#define LCD_BL_GPIO_Port GPIOB
 #define LED0_Pin LL_GPIO_PIN_5
 #define LED0_GPIO_Port GPIOB
 

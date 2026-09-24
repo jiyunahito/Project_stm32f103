@@ -111,7 +111,7 @@ int main(void)
   MX_TIM3_Init();
   MX_ADC1_Init();
   MX_FSMC_Init();
-  /* USER CODE BEGIN 2 */  
+  /* USER CODE BEGIN 2 */
 
   // LL_TIM_EnableARRPreload(TIM3);
   LL_TIM_CC_EnableChannel(TIM3,LL_TIM_CHANNEL_CH2);
@@ -162,8 +162,9 @@ int main(void)
     {
     case KEY_EVENT_PRESS:
       vledLed_PWM_CCR_Change(0);
+      vlcdLCD_Clear(BLUE);
       // vusartUSART_Print("voltage : %d mV", uChangeable_Resistor_Voltage);
-      vusartUSART_Print("Test Value : %d", uTestValue); // if value = 255 means error existing!      
+      // vusartUSART_Print("Test Value : %d", uTestValue); // if value = 255 means error existing!      
       break;
     case KEY_EVENT_LONG_PRESS:
       vledLed_PWM_CCR_Change(100);
@@ -480,12 +481,15 @@ static void MX_GPIO_Init(void)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOE);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOF);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOA);
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOG);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOD);
-  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
 
   /**/
   LL_GPIO_ResetOutputPin(LED1_GPIO_Port, LED1_Pin);
+
+  /**/
+  LL_GPIO_ResetOutputPin(LCD_BL_GPIO_Port, LCD_BL_Pin);
 
   /**/
   GPIO_InitStruct.Pin = KEY2_Pin|KEY1_Pin|KEY0_Pin;
@@ -499,6 +503,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   LL_GPIO_Init(LED1_GPIO_Port, &GPIO_InitStruct);
+
+  /**/
+  GPIO_InitStruct.Pin = LCD_BL_Pin;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_DOWN;
+  LL_GPIO_Init(LCD_BL_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
