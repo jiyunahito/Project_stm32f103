@@ -3,9 +3,6 @@
 
 #include "main.h"
 
-#define LCD_BASE ((uint32_t)(0x6C000000 | 0x000007FE))
-#define LCD ((LCD_TypeDef *) LCD_BASE)
-
 #define LCD_BL_ON() LL_GPIO_SetOutputPin(LCD_BL_GPIO_Port, LCD_BL_Pin)
 #define LCD_BL_OFF() LL_GPIO_ResetOutputPin(LCD_BL_GPIO_Port, LCD_BL_Pin)
 
@@ -15,10 +12,15 @@
 #define RED            0xF800
 #define GREEN          0x07E0
 
+/* FSMC 位址映射 (Bank1 NE4 & A10)*/
+/* 16bit下 A10對應 HADDR[11], 因此RS = 1時 偏移量要為 0x0000_0800*/
+#define LCD_BASE ((uint32_t)(0x6C000000 | 0x000007FE))
+#define LCD ((LCD_TypeDef *) LCD_BASE)
+
 typedef struct
 {
-    volatile uint16_t lcd_reg;
-    volatile uint16_t lcd_ram;
+    volatile uint16_t lcd_reg; // RS = 0 (寫指令) 地址為 0x6C00_07FE
+    volatile uint16_t lcd_ram; // RS = 1 (寫資料) 地址為 0x6C00_0800
 } LCD_TypeDef;
 
 typedef struct

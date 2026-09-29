@@ -33,14 +33,17 @@ void vlcdLCD_Init(void){
     tlcdLCDInfo.id = ulcdLCD_Read_Data();
     tlcdLCDInfo.id = (tlcdLCDInfo.id << 8) | ulcdLCD_Read_Data();
     if(tlcdLCDInfo.id == 0x8552){
-        tlcdLCDInfo.height = 240;
-        tlcdLCDInfo.width = 320;
+        tlcdLCDInfo.height = 320;
+        tlcdLCDInfo.width = 240;
         /* 背光開啟 */
         LCD_BL_ON();
+        LL_mDelay(50);
         /* software reset */
         vlcdLCD_Write_Reg(0x01);
+        LL_mDelay(120);
         /* sleep mode out */
         vlcdLCD_Write_Reg(0x11);
+        LL_mDelay(120);
         /* pixel format */
         vlcdLCD_Write(0x3A, 0x05);
         /* memory access control */
