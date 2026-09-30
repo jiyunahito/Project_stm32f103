@@ -11,6 +11,7 @@
 #define BLUE           0x001F
 #define RED            0xF800
 #define GREEN          0x07E0
+#define GRAY           0x4A49
 
 /* FSMC 位址映射 (Bank1 NE4 & A10)*/
 /* 16bit下 A10對應 HADDR[11], 因此RS = 1時 偏移量要為 0x0000_0800*/
@@ -41,5 +42,7 @@ void vlcdLCD_Write(uint16_t lcd_reg, uint16_t value);
 
 void vlcdLCD_Set_Cursor(uint16_t x_start, uint16_t x_end, uint16_t y_start, uint16_t y_end);
 void vlcdLCD_Clear(uint16_t color);
+void vlcdLCD_Draw_Rectangle(uint16_t x_start, uint16_t x_end, uint16_t y_start, uint16_t y_end, uint16_t color);
+void vlcdLCD_Draw_Point(uint16_t x, uint16_t y, uint16_t color);
 
 #endif

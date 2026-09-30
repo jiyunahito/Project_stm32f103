@@ -147,3 +147,58 @@ void vlcdLCD_Clear(uint16_t color){
         vlcdLCD_Write_Data(color);
     }
 }
+
+void vlcdLCD_Draw_Rectangle(uint16_t x_start, uint16_t x_end, uint16_t y_start, uint16_t y_end, uint16_t color){
+    uint16_t i;
+    /* 畫x軸向的邊 */
+    vlcdLCD_Write_Reg(0x2A);
+    vlcdLCD_Write_Data(x_start >> 8); vlcdLCD_Write_Data(x_start & 0xFF);
+    vlcdLCD_Write_Data(x_end >> 8); vlcdLCD_Write_Data(x_end & 0xFF);
+    vlcdLCD_Write_Reg(0x2B);
+    vlcdLCD_Write_Data(y_start >> 8); vlcdLCD_Write_Data(y_start & 0xFF);
+    vlcdLCD_Write_Data(y_start >> 8); vlcdLCD_Write_Data(y_start & 0xFF);
+    vlcdLCD_Write_Reg(0x2C);
+    for(i = x_start; i < x_end + 1; i++){
+        vlcdLCD_Write_Data(color);
+    }
+
+    vlcdLCD_Write_Reg(0x2B);
+    vlcdLCD_Write_Data(y_end >> 8); vlcdLCD_Write_Data(y_end & 0xFF);
+    vlcdLCD_Write_Data(y_end >> 8); vlcdLCD_Write_Data(y_end & 0xFF);
+    vlcdLCD_Write_Reg(0x2C);
+    for(i = x_start; i < x_end + 1; i++){
+        vlcdLCD_Write_Data(color);
+    }
+
+    /* 畫y軸向的邊 */
+    vlcdLCD_Write_Reg(0x2A);
+    vlcdLCD_Write_Data(x_start >> 8); vlcdLCD_Write_Data(x_start & 0xFF);
+    vlcdLCD_Write_Data(x_start >> 8); vlcdLCD_Write_Data(x_start & 0xFF);
+    vlcdLCD_Write_Reg(0x2B);
+    vlcdLCD_Write_Data(y_start >> 8); vlcdLCD_Write_Data(y_start & 0xFF);
+    vlcdLCD_Write_Data(y_end >> 8); vlcdLCD_Write_Data(y_end & 0xFF);
+    vlcdLCD_Write_Reg(0x2C);
+    for(i = y_start; i < y_end + 1; i++){
+        vlcdLCD_Write_Data(color);
+    }
+
+    vlcdLCD_Write_Reg(0x2A);
+    vlcdLCD_Write_Data(x_end >> 8); vlcdLCD_Write_Data(x_end & 0xFF);
+    vlcdLCD_Write_Data(x_end >> 8); vlcdLCD_Write_Data(x_end & 0xFF);
+    vlcdLCD_Write_Reg(0x2C);
+    for(i = y_start; i < y_end + 1; i++){
+        vlcdLCD_Write_Data(color);
+    }
+}
+
+void vlcdLCD_Draw_Point(uint16_t x, uint16_t y, uint16_t color){
+    vlcdLCD_Write_Reg(0x2A);
+    vlcdLCD_Write_Data(x >> 8); vlcdLCD_Write_Data(x & 0xFF);
+    vlcdLCD_Write_Data(x >> 8); vlcdLCD_Write_Data(x & 0xFF);
+    vlcdLCD_Write_Reg(0x2B);
+    vlcdLCD_Write_Data(y >> 8); vlcdLCD_Write_Data(y & 0xFF);
+    vlcdLCD_Write_Data(y >> 8); vlcdLCD_Write_Data(y & 0xFF);
+    vlcdLCD_Write_Reg(0x2C);
+
+    vlcdLCD_Write_Data(color);
+}

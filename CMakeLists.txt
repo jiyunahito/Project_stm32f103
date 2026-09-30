@@ -38,6 +38,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     Core/Inc/usart.h
     Core/Inc/adc.h
     Core/Inc/lcd.h
+    Core/Inc/spectrum.h
 )
 
 # Add STM32CubeMX generated sources
@@ -56,6 +57,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/usart.c
     Core/Src/adc.c
     Core/Src/lcd.c
+    Core/Src/spectrum.c    
 )
 
 # Add include paths
