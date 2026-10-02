@@ -11,5 +11,6 @@
 #define X_FRAME_CENTER ((X_FRAME_MIN + X_FRAME_MAX) / 2)
 
 void vspectrumDrawGrid(void);
+void vspectrumDAC_DMA_Init(void);
 
 #endif

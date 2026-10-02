@@ -114,17 +114,19 @@ int main(void)
   MX_TIM3_Init();
   MX_ADC1_Init();
   MX_FSMC_Init();
-  // MX_DAC_Init();
-  // MX_TIM2_Init();
+  MX_DAC_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
   // LL_TIM_EnableARRPreload(TIM3);
   LL_TIM_CC_EnableChannel(TIM3,LL_TIM_CHANNEL_CH2);
   LL_TIM_EnableCounter(TIM3);  
+  LL_TIM_EnableCounter(TIM2);
 
   vusartUSART_Init();
   vusartUSART_TX_By_DMA_Init();
   vusartUSART_RX_By_DMA_Init();
+  vspectrumDAC_DMA_Init();
   // vusartUSART_StartRX();
 
   vkeyKey_Init(KEY0_GPIO_Port, KEY0_Pin, ACTIVE_LOW, &tKey0);
@@ -168,7 +170,8 @@ int main(void)
     {
     case KEY_EVENT_PRESS:
       vledLed_PWM_CCR_Change(0);
-      vlcdLCD_Clear(BLUE);
+      vlcdLCD_Draw_Line(1,1, X_AXIS, 30, RED);
+      // vlcdLCD_Clear(BLUE);
       // vusartUSART_Print("voltage : %d mV", uChangeable_Resistor_Voltage);
       // vusartUSART_Print("Test Value : %d", uTestValue); // if value = 255 means error existing!      
       break;
@@ -185,7 +188,8 @@ int main(void)
     switch (ekeyEvent1)
     {
     case KEY_EVENT_PRESS:
-      vusartUSART_Print("LCD ID : 0x%x", tlcdLCDInfo.id);
+      // vusartUSART_Print("LCD ID : 0x%x", tlcdLCDInfo.id);
+      vusartUSART_Print("voltage : %d mV", uChangeable_Resistor_Voltage);
       vledLed_Off(&LED1);
       break;
     case KEY_EVENT_LONG_PRESS:

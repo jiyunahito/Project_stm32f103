@@ -202,3 +202,30 @@ void vlcdLCD_Draw_Point(uint16_t x, uint16_t y, uint16_t color){
 
     vlcdLCD_Write_Data(color);
 }
+
+void vlcdLCD_Draw_Line(uint16_t x, uint16_t y, uint8_t direction, uint16_t num, uint16_t color){
+    if(direction == X_AXIS){
+        num = (num > tlcdLCDInfo.width - x) ? (tlcdLCDInfo.width - x) : num;
+        vlcdLCD_Write_Reg(0x2A);
+        vlcdLCD_Write_Data(x >> 8); vlcdLCD_Write_Data(x & 0xFF);
+        vlcdLCD_Write_Data( (x + num - 1) >> 8); vlcdLCD_Write_Data( (x + num - 1)  & 0xFF);
+        vlcdLCD_Write_Reg(0x2B);
+        vlcdLCD_Write_Data(y >> 8); vlcdLCD_Write_Data(y & 0xFF);
+        vlcdLCD_Write_Data(y >> 8); vlcdLCD_Write_Data(y & 0xFF);
+        for(uint16_t i = 0; i < num; i++){
+            vlcdLCD_Write_Data(color);
+        }
+    }
+    else if(direction == Y_AXIS){
+        num = (num > tlcdLCDInfo.height - y) ? (tlcdLCDInfo.height - y) : num;
+        vlcdLCD_Write_Reg(0x2A);
+        vlcdLCD_Write_Data(x >> 8); vlcdLCD_Write_Data(x & 0xFF);
+        vlcdLCD_Write_Data(x >> 8); vlcdLCD_Write_Data(x & 0xFF);
+        vlcdLCD_Write_Reg(0x2B);
+        vlcdLCD_Write_Data(y >> 8); vlcdLCD_Write_Data(y & 0xFF);
+        vlcdLCD_Write_Data( (y + num - 1) >> 8); vlcdLCD_Write_Data( (y + num - 1)  & 0xFF);
+        for(uint16_t i = 0; i < num; i++){
+            vlcdLCD_Write_Data(color);
+        }
+    }
+}

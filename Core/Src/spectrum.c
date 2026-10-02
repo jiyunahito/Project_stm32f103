@@ -38,3 +38,9 @@ void vspectrumDrawGrid(void){
     }
 }
 
+void vspectrumDAC_DMA_Init(void){
+    LL_DAC_EnableDMAReq(DAC, LL_DAC_CHANNEL_1);
+    LL_DMA_ConfigAddresses(DMA2, LL_DMA_CHANNEL_3, 
+                            (uint32_t)uspectrumSin_Table, LL_DAC_DMA_GetRegAddr(DAC, LL_DAC_CHANNEL_1, LL_DAC_DMA_REG_DATA_12BITS_RIGHT_ALIGNED), 
+                            LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
+}
