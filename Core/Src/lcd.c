@@ -2,6 +2,11 @@
 
 tlcdLCD_Info tlcdLCDInfo;
 
+static void vlcdAbstract_Absolute(int16_t a, int16_t b, int16_t *value){
+    int16_t mask = (a - b) >> 15;
+    *value = ((a - b) ^ mask) - mask;
+}
+
 void vlcdLCD_Init(void){
     vlcdLCD_Write_Reg(0xD3);
     tlcdLCDInfo.id = ulcdLCD_Read_Data();
@@ -203,29 +208,59 @@ void vlcdLCD_Draw_Point(uint16_t x, uint16_t y, uint16_t color){
     vlcdLCD_Write_Data(color);
 }
 
-void vlcdLCD_Draw_Line(uint16_t x, uint16_t y, uint8_t direction, uint16_t num, uint16_t color){
-    if(direction == X_AXIS){
-        num = (num > tlcdLCDInfo.width - x) ? (tlcdLCDInfo.width - x) : num;
+void vlcdLCD_Draw_Line(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color){
+    if(x0 == x1){ // 垂直線
+        uint16_t start = (y0 > y1) ? y1 : y0;
+        uint16_t end = (y0 > y1) ? y0 : y1;
         vlcdLCD_Write_Reg(0x2A);
-        vlcdLCD_Write_Data(x >> 8); vlcdLCD_Write_Data(x & 0xFF);
-        vlcdLCD_Write_Data( (x + num - 1) >> 8); vlcdLCD_Write_Data( (x + num - 1)  & 0xFF);
+        vlcdLCD_Write_Data(x0 >> 8); vlcdLCD_Write_Data(x0 & 0xFF);
+        vlcdLCD_Write_Data(x0 >> 8); vlcdLCD_Write_Data(x0 & 0xFF);
         vlcdLCD_Write_Reg(0x2B);
-        vlcdLCD_Write_Data(y >> 8); vlcdLCD_Write_Data(y & 0xFF);
-        vlcdLCD_Write_Data(y >> 8); vlcdLCD_Write_Data(y & 0xFF);
-        for(uint16_t i = 0; i < num; i++){
+        vlcdLCD_Write_Data(start >> 8); vlcdLCD_Write_Data(start & 0xFF);
+        vlcdLCD_Write_Data(end >> 8); vlcdLCD_Write_Data(end & 0xFF);
+        vlcdLCD_Write_Reg(0x2C);
+        for(uint16_t i = start; i <= end; i++){
             vlcdLCD_Write_Data(color);
         }
     }
-    else if(direction == Y_AXIS){
-        num = (num > tlcdLCDInfo.height - y) ? (tlcdLCDInfo.height - y) : num;
+    else if(y0 == y1){ // 水平線
+        uint16_t start = (x0 > x1) ? x1 : x0;
+        uint16_t end = (x0 > x1) ? x0 : x1;
         vlcdLCD_Write_Reg(0x2A);
-        vlcdLCD_Write_Data(x >> 8); vlcdLCD_Write_Data(x & 0xFF);
-        vlcdLCD_Write_Data(x >> 8); vlcdLCD_Write_Data(x & 0xFF);
+        vlcdLCD_Write_Data(start >> 8); vlcdLCD_Write_Data(start & 0xFF);
+        vlcdLCD_Write_Data(end >> 8); vlcdLCD_Write_Data(end & 0xFF);
         vlcdLCD_Write_Reg(0x2B);
-        vlcdLCD_Write_Data(y >> 8); vlcdLCD_Write_Data(y & 0xFF);
-        vlcdLCD_Write_Data( (y + num - 1) >> 8); vlcdLCD_Write_Data( (y + num - 1)  & 0xFF);
-        for(uint16_t i = 0; i < num; i++){
+        vlcdLCD_Write_Data(y0 >> 8); vlcdLCD_Write_Data(y0 & 0xFF);
+        vlcdLCD_Write_Data(y0 >> 8); vlcdLCD_Write_Data(y0 & 0xFF);
+        vlcdLCD_Write_Reg(0x2C);
+        for(uint16_t i = start; i <= end; i++){
             vlcdLCD_Write_Data(color);
+        }
+    }
+    else{
+        int16_t dx; vlcdAbstract_Absolute(x0, x1, &dx);
+        int16_t dy; vlcdAbstract_Absolute(y0, y1, &dy);
+
+        int16_t step_x = (x0 < x1) ? 1 : -1;
+        int16_t step_y = (y0 < y1) ? 1 : -1;
+
+        int16_t err = dx - dy;
+        int16_t e2;
+        while(1){
+            vlcdLCD_Draw_Point(x0, y0, color);
+            
+            if(x0 == x1 && y0 == y1){
+                break;
+            }
+            e2 = 2 * err;
+            if(e2 > -dy){
+                err -= dy;
+                x0 += step_x;
+            }
+            if(e2 < dx){
+                err += dx;
+                y0 += step_y;
+            }           
         }
     }
 }

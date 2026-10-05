@@ -170,13 +170,14 @@ int main(void)
     {
     case KEY_EVENT_PRESS:
       vledLed_PWM_CCR_Change(0);
-      vlcdLCD_Draw_Line(1,1, X_AXIS, 30, RED);
+      vlcdLCD_Draw_Line(0, 0, 238, 3, GREEN);
+      // vspectrumUpdate_Waveform(uspectrumSin_Table);
       // vlcdLCD_Clear(BLUE);
       // vusartUSART_Print("voltage : %d mV", uChangeable_Resistor_Voltage);
       // vusartUSART_Print("Test Value : %d", uTestValue); // if value = 255 means error existing!      
       break;
     case KEY_EVENT_LONG_PRESS:
-      vledLed_PWM_CCR_Change(100);
+      vledLed_PWM_CCR_Change(100);      
       vusartUSART_Print("long press test");
       break;
     case KEY_EVENT_RELEASE:

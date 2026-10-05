@@ -30,5 +30,6 @@ uint16_t uadcADC1_GetVoltage(void){
         // uadcVoltage_mV = (uint16_t)(((uadcADC1_Value * 52812U) + 32768U) >> 16); // 避免向下取整 可加上位移量的一半達到四捨五入
         uadcADC1_CanGetFlag = 0; // 執行完事件後 要把事件清除
     }
-    return uadcVoltage_mV;    
+    // return uadcVoltage_mV;
+    return uadcADC1_Value;
 }
