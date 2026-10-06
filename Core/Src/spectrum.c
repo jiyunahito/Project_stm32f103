@@ -41,13 +41,18 @@ void vspectrumDrawGrid(void){
 }
 
 void vspectrumDAC_DMA_Init(void){
+    LL_DAC_Disable(DAC, LL_DAC_CHANNEL_1);
+
     LL_DAC_EnableDMAReq(DAC, LL_DAC_CHANNEL_1);
+
+    LL_DMA_DisableChannel(DMA2, LL_DMA_CHANNEL_3);
     LL_DMA_ConfigAddresses(DMA2, LL_DMA_CHANNEL_3, 
                             (uint32_t)uspectrumSin_Table, LL_DAC_DMA_GetRegAddr(DAC, LL_DAC_CHANNEL_1, LL_DAC_DMA_REG_DATA_12BITS_RIGHT_ALIGNED), 
-                            LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
-    LL_DMA_DisableChannel(DMA2, LL_DMA_CHANNEL_3);
+                            LL_DMA_DIRECTION_MEMORY_TO_PERIPH);    
     LL_DMA_SetDataLength(DMA2, LL_DMA_CHANNEL_3, 3);
     LL_DMA_EnableChannel(DMA2, LL_DMA_CHANNEL_3);
+
+    LL_DAC_Enable(DAC, LL_DAC_CHANNEL_1);
 }
 
 void vspectrumFrequency_Change(uint32_t PSC, uint32_t ARR){ // if ARR = 0, 訊號頻率(Hz) = 8M / (7+1) / 256 = 3906.25Hz 
