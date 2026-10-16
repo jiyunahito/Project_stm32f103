@@ -4,6 +4,7 @@ volatile uint16_t uadcADC1_Value = 0U;
 volatile uint8_t uadcADC1_CanGetFlag = 0;
 // float fadcvoltage = 0.0f;
 static uint16_t uadcVoltage_mV = 0;
+uint16_t uadcADC_DMA_Buffer[512] = {0};
 
 void vadcADC1_Init(void){
     LL_ADC_Enable(ADC1);
@@ -32,4 +33,19 @@ uint16_t uadcADC1_GetVoltage(void){
     }
     // return uadcVoltage_mV;
     return uadcADC1_Value;
+}
+
+void vadcADC_DMA_Init(void){    
+    LL_ADC_Disable(ADC1);    
+
+    LL_ADC_REG_SetDMATransfer(ADC1, LL_ADC_REG_DMA_TRANSFER_UNLIMITED);
+
+    LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_1);
+    LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_1, 
+                            LL_ADC_DMA_GetRegAddr(ADC1, LL_ADC_DMA_REG_REGULAR_DATA), uadcADC_DMA_Buffer, 
+                            LL_DMA_DIRECTION_PERIPH_TO_MEMORY);    
+    LL_DMA_SetDataLength(DMA2, LL_DMA_CHANNEL_3, 3);
+    LL_DMA_EnableChannel(DMA2, LL_DMA_CHANNEL_3);
+
+    LL_DAC_Enable(DAC, LL_DAC_CHANNEL_1);
 }
