@@ -4,23 +4,25 @@
 #include "main.h"
 #include <stdbool.h>
 #include <stdint.h>
-
+/***************************************/
+/*PE2 => KEY2, PE3 => KEY1, PE4 => KEY0*/
+/***************************************/ 
 #define ACTIVE_LOW 0U
 #define ACTIVE_HIGH !ACTIVE_LOW
 
 typedef enum{
-    KEYSTATE_IDLE = 0,
-    KEYSTATE_DEBOUNCE_PRESSED,
-    KEYSTATE_PRESSED,
-    KEYSTATE_DEBOUNCE_RELEASED
-} ekeyKeyState;
+    KEYSTATE_IDLE = 0, // 空閒狀態
+    KEYSTATE_DEBOUNCE_PRESSED, // 正要按下的階段
+    KEYSTATE_PRESSED, // 已確認按下
+    KEYSTATE_DEBOUNCE_RELEASED // 正要釋放的階段
+} ekeyKeyState; // key的狀態機
 
 typedef enum{
     KEY_EVENT_NONE = 0,
-    KEY_EVENT_PRESS,
-    KEY_EVENT_RELEASE,
-    KEY_EVENT_LONG_PRESS    
-} ekeyKeyEvent;
+    KEY_EVENT_PRESS, // 按下
+    KEY_EVENT_RELEASE, // 釋放
+    KEY_EVENT_LONG_PRESS // 長按
+} ekeyKeyEvent; // key的事件
 
 typedef struct{
     /* key port 硬體設定*/

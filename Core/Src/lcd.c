@@ -2,7 +2,7 @@
 
 tlcdLCD_Info tlcdLCDInfo;
 
-static void vlcdAbstract_Absolute(int16_t a, int16_t b, int16_t *value){
+static void vlcdAbstract_Absolute(int16_t a, int16_t b, int16_t *value){ // 兩數相減取絕對值
     int16_t mask = (a - b) >> 15;
     *value = ((a - b) ^ mask) - mask;
 }
@@ -37,7 +37,7 @@ void vlcdLCD_Init(void){
     (void)ulcdLCD_Read_Data();
     tlcdLCDInfo.id = ulcdLCD_Read_Data();
     tlcdLCDInfo.id = (tlcdLCDInfo.id << 8) | ulcdLCD_Read_Data();
-    if(tlcdLCDInfo.id == 0x8552){
+    if(tlcdLCDInfo.id == 0x8552){ // 顯示器控制晶片型號為ILI9341
         tlcdLCDInfo.height = 320;
         tlcdLCDInfo.width = 240;
         /* 背光開啟 */
@@ -54,7 +54,7 @@ void vlcdLCD_Init(void){
         /* memory access control */
         vlcdLCD_Write(0x36, 0x00);
 
-        // 6. 門極與垂直掃描時序配置 (ST7789V 特有參數)
+        // 門極與垂直掃描時序配置 (ST7789V 特有參數)
         vlcdLCD_Write_Reg(0xB2); // Porch Setting
         vlcdLCD_Write_Data(0x0C);
         vlcdLCD_Write_Data(0x0C);
@@ -87,24 +87,24 @@ void vlcdLCD_Init(void){
         vlcdLCD_Write_Data(0xA4);
         vlcdLCD_Write_Data(0xA1);
 
-        // 7. Positive Gamma Correction
+        // Positive Gamma Correction
         vlcdLCD_Write_Reg(0xE0);
         vlcdLCD_Write_Data(0xD0); vlcdLCD_Write_Data(0x04); vlcdLCD_Write_Data(0x0D); vlcdLCD_Write_Data(0x11);
         vlcdLCD_Write_Data(0x13); vlcdLCD_Write_Data(0x2B); vlcdLCD_Write_Data(0x3F); vlcdLCD_Write_Data(0x54);
         vlcdLCD_Write_Data(0x4C); vlcdLCD_Write_Data(0x18); vlcdLCD_Write_Data(0x0D); vlcdLCD_Write_Data(0x0B);
         vlcdLCD_Write_Data(0x1F); vlcdLCD_Write_Data(0x23);
 
-        // 8. Negative Gamma Correction
+        // Negative Gamma Correction
         vlcdLCD_Write_Reg(0xE1);
         vlcdLCD_Write_Data(0xD0); vlcdLCD_Write_Data(0x04); vlcdLCD_Write_Data(0x0C); vlcdLCD_Write_Data(0x11);
         vlcdLCD_Write_Data(0x13); vlcdLCD_Write_Data(0x2C); vlcdLCD_Write_Data(0x3F); vlcdLCD_Write_Data(0x44);
         vlcdLCD_Write_Data(0x51); vlcdLCD_Write_Data(0x2F); vlcdLCD_Write_Data(0x1F); vlcdLCD_Write_Data(0x1F);
         vlcdLCD_Write_Data(0x20); vlcdLCD_Write_Data(0x23);
 
-        // 9. 開啟顯示 (Display ON)
+        // 開啟顯示 (Display ON)
         vlcdLCD_Write_Reg(0x29);        
         LL_mDelay(1);
-        // 10. 預設全螢幕清為白色
+        // 預設全螢幕清為白色
         vlcdLCD_Clear(WHITE);
         return;
     }

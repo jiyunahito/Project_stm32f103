@@ -17,7 +17,7 @@ uint8_t u8usartDMABuffer[DMA_BUF_SIZE];
 /* 當HT TC IDLE發生 才會把u8usartDMABuffer[DMA_BUF_SIZE]的資料移到tusartRX1     */
 /******************************************************************************/
 
-static inline bool busartRingBuffer_Pop(tusartRXBuffer *buffer, uint8_t *ch){
+static inline bool busartRingBuffer_Pop(tusartRXBuffer *buffer, uint8_t *ch){ // 將RX資料丟出
     if(buffer->tail != buffer->head){
         *ch = buffer->rx_buffer[buffer->tail++];
         return true;
@@ -59,7 +59,7 @@ inline static void busartRingBuffer_Write(tusartRXBuffer *buffer, const uint8_t 
     }    
 }
 
-static eusartUSART_Cmd eusartParse_Command(const char *line){
+static eusartUSART_Cmd eusartParse_Command(const char *line){ // 接收到的指令去做比對 然後解讀成對應事件回傳給main
     if(strcmp(line, "led on") == 0){
         return USART_CMD_LED_ON;
     }
@@ -77,18 +77,18 @@ void vusartUSART_Init(void){
     tusartRX1.frame_ready_flag = FRAME_NOT_READY;
 }
 
-void vusartUSART_Print(const char *text, ...){    
+void vusartUSART_Print(const char *text, ...){ // 向電腦串口傳訊息 最多(UART_BUF_SIZE - 2)個Byte
     if(text == NULL || tusartTX1.is_tx_busy) return;
-
+    /* 為了執行特殊格式 例如%d, value, 而執行(如下) */
     va_list args;
     va_start(args, text);
-
+    // 最多複製sizeof(tusartTX1.tx_buffer) - 2的大小到tx_buffer(因為後面會自行補上\r \n 這樣在傳輸指令就不需要額外打)
     int len = vsniprintf((char *)tusartTX1.tx_buffer, sizeof(tusartTX1.tx_buffer) - 2, text, args);
     va_end(args);
 
-    if(len < 0) return;
-    
-    uint16_t size = (uint16_t)len;
+    if(len < 0) return; // 若有錯誤, len = -1 那就return...
+    /* 以上...*/
+    uint16_t size = (uint16_t)len; // 紀錄這串指令有多少個byte
 
     // for(uint16_t i = 0; i < size; i++){
     //     tusartTX1.tx_buffer[i] = (uint8_t)text[i];
@@ -98,7 +98,7 @@ void vusartUSART_Print(const char *text, ...){
 
     tusartTX1.tx_size = size;
     tusartTX1.tx_index = 0;
-    tusartTX1.is_tx_busy = 1; 
+    tusartTX1.is_tx_busy = 1; // 標記為忙碌並在傳輸完成的中斷(TC)清除
 
     // LL_USART_EnableIT_TXE(USART1); // 用DMA版本 這行必須關掉(使用DMA就不依賴USART的中斷)
     /* 以下為DMA版本 */
@@ -115,7 +115,7 @@ void vusartUSART_Print(const char *text, ...){
     LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_4); // 
 }
 
-void vusartUSART_PrintBytes(const uint8_t *data, uint16_t len){
+void vusartUSART_PrintBytes(const uint8_t *data, uint16_t len){ // 暫時沒用到
     if(data == NULL || len == 0) return;    
 
 }
@@ -125,13 +125,13 @@ void vusartUSART_StartRX(void){
     // LL_USART_EnableDirectionRx(USART1);
 }
 
-eusartUSART_Cmd eusartUSART_Poll(void){    
+eusartUSART_Cmd eusartUSART_Poll(void){ // 將RX_buffer進行分析
     uint8_t ch;
     
     while(busartRingBuffer_Pop(&tusartRX1, &ch)){
         if( ch == '\r' || ch == '\n'){
             if(u8usartLine_Index > 0){
-                cusartLine_Buffer[u8usartLine_Index] = '\0';                
+                cusartLine_Buffer[u8usartLine_Index] = '\0'; // 因為會進行strcmp最後一定要為\0      
                 tusartRX1.frame_ready_flag = FRAME_READY;
                 u8usartLine_Index = 0;
                 break;

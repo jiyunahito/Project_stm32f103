@@ -9,10 +9,10 @@ tkeyKey tKey1;
 tkeyKey tKey2;
 
 static bool prvbkeyKey_Read(tkeyKey *key){
-    return  LL_GPIO_IsInputPinSet(key->port, key->pin) == key->active_level; // key被按下時回傳true 否則回傳false
+    return LL_GPIO_IsInputPinSet(key->port, key->pin) == key->active_level; // key被按下時回傳true 否則回傳false
 }
 
-static void prvvSetEvent(tkeyKey *key, ekeyKeyEvent event){
+static void prvvSetEvent(tkeyKey *key, ekeyKeyEvent event){ // 設定待處理事件
     if(key->event_taken){ // 事件被拿走 才寫入新事件 (防止舊事件被覆蓋)
         key->pending_event = event;
         key->event_taken = false;
@@ -82,6 +82,6 @@ ekeyKeyEvent ekeyKey_GetEvent(tkeyKey *key){ // 若要不丟棄事件 要進行q
     return get_event;
 }
 
-bool bkeyKey_IsPressed(tkeyKey *key){
+bool bkeyKey_IsPressed(tkeyKey *key){ // 暫時沒用到
     return (key->state == KEYSTATE_PRESSED || key->state == KEYSTATE_DEBOUNCE_PRESSED);
 }

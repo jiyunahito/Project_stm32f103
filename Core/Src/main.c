@@ -144,7 +144,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {        
-    /* 接收串口訊息並執行動作*/
+    /* 接收串口訊息並執行動作 */
     eusartCMD = eusartUSART_Poll();
     switch (eusartCMD)
     {

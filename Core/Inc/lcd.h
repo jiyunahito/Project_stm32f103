@@ -2,10 +2,13 @@
 #define LCD_H
 
 #include "main.h"
-
+/*************************************************/
+/* FSMC架構...                                   */
+/*************************************************/
+/* 背光控制 */
 #define LCD_BL_ON() LL_GPIO_SetOutputPin(LCD_BL_GPIO_Port, LCD_BL_Pin)
 #define LCD_BL_OFF() LL_GPIO_ResetOutputPin(LCD_BL_GPIO_Port, LCD_BL_Pin)
-
+/* 顏色 */
 #define WHITE          0xFFFF
 #define BLACK          0x0000
 #define BLUE           0x001F

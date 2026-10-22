@@ -3,6 +3,10 @@
 
 #include <main.h>
 
+/********************************************/
+/* PB5 => LED0, PE5 => LED1                 */
+/* PB5 -> TIM3_CH2(PWM)                     */
+/********************************************/
 #define LED_EXECUTE_INTERVAL 500U // LED最少幾ms執行一次
 
 typedef struct{

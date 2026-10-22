@@ -23,6 +23,6 @@ void vledLed_Toggle(tledLED *led){
 void vledLed_PWM_CCR_Change(uint8_t duty_cycle_ratio){ // 輸入0~100
     duty_cycle_ratio = (duty_cycle_ratio > 100) ? 100 : duty_cycle_ratio;
     uint32_t value_of_CCR = 10U * duty_cycle_ratio; // ARR = 999 總共1000 1% = 10
-
+    // 相關timer資訊請查MX_TIM3_Init
     LL_TIM_OC_SetCompareCH2(TIM3, value_of_CCR);
 }
