@@ -169,16 +169,20 @@ int main(void)
     switch (ekeyEvent0)
     {
     case KEY_EVENT_PRESS:
-      vledLed_PWM_CCR_Change(0);
-      vlcdLCD_Draw_Line(0, 0, 238, 3, GREEN);
+      vledLed_Toggle(&LED0);
+      vledLed_Toggle(&LED1);
+      // vledLed_PWM_CCR_Change(0);
+      // vlcdLCD_Draw_Line(0, 0, 238, 3, GREEN);
       // vspectrumUpdate_Waveform(uspectrumSin_Table);
       // vlcdLCD_Clear(BLUE);
       // vusartUSART_Print("voltage : %d mV", uChangeable_Resistor_Voltage);
       // vusartUSART_Print("Test Value : %d", uTestValue); // if value = 255 means error existing!      
       break;
     case KEY_EVENT_LONG_PRESS:
-      vledLed_PWM_CCR_Change(100);      
-      vusartUSART_Print("long press test");
+      vledLed_Off(&LED0);
+      vledLed_Off(&LED1);
+      // vledLed_PWM_CCR_Change(100);      
+      // vusartUSART_Print("long press test");
       break;
     case KEY_EVENT_RELEASE:
       break;  
@@ -189,12 +193,16 @@ int main(void)
     switch (ekeyEvent1)
     {
     case KEY_EVENT_PRESS:
+      vledLed_Toggle(&LED0);
+      vledLed_Toggle(&LED1);
       // vusartUSART_Print("LCD ID : 0x%x", tlcdLCDInfo.id);
-      vusartUSART_Print("voltage : %d mV", uChangeable_Resistor_Voltage);
-      vledLed_Off(&LED1);
+      // vusartUSART_Print("voltage : %d mV", uChangeable_Resistor_Voltage);
+      // vledLed_Off(&LED1);
       break;
     case KEY_EVENT_LONG_PRESS:
-      vledLed_Toggle(&LED1);
+      vledLed_Off(&LED0);
+      vledLed_Off(&LED1);
+      // vledLed_Toggle(&LED1);
       break;
     case KEY_EVENT_RELEASE:
       break;  
@@ -217,36 +225,44 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
-  LL_FLASH_SetLatency(LL_FLASH_LATENCY_0);
-  while(LL_FLASH_GetLatency()!= LL_FLASH_LATENCY_0)
+  LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
+  while(LL_FLASH_GetLatency()!= LL_FLASH_LATENCY_2)
   {
   }
-  LL_RCC_HSI_SetCalibTrimming(16);
-  LL_RCC_HSI_Enable();
+  LL_RCC_HSE_Enable();
 
-   /* Wait till HSI is ready */
-  while(LL_RCC_HSI_IsReady() != 1)
+   /* Wait till HSE is ready */
+  while(LL_RCC_HSE_IsReady() != 1)
+  {
+
+  }
+  LL_RCC_HSE_EnableCSS();
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_1, LL_RCC_PLL_MUL_9);
+  LL_RCC_PLL_Enable();
+
+   /* Wait till PLL is ready */
+  while(LL_RCC_PLL_IsReady() != 1)
   {
 
   }
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_2);
   LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);
-  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_HSI);
+  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
 
    /* Wait till System clock is ready */
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSI)
+  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
   {
 
   }
-  LL_SetSystemCoreClock(8000000);
+  LL_SetSystemCoreClock(72000000);
 
    /* Update the time base */
   if (HAL_InitTick (TICK_INT_PRIORITY) != HAL_OK)
   {
     Error_Handler();
   }
-  LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSRC_PCLK2_DIV_2);
+  LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSRC_PCLK2_DIV_8);
 }
 
 /**
@@ -446,7 +462,7 @@ static void MX_TIM3_Init(void)
   /* USER CODE BEGIN TIM3_Init 1 */
 
   /* USER CODE END TIM3_Init 1 */
-  TIM_InitStruct.Prescaler = 7;
+  TIM_InitStruct.Prescaler = 63;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
   TIM_InitStruct.Autoreload = 999;
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
